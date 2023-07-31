@@ -5,9 +5,11 @@ from flask_migrate import Migrate
 from datetime import datetime
 from flask_marshmallow import Marshmallow
 from models import db
+from Restaurant import restaurants
 
 
 app = Flask(__name__)
+app.register_blueprint(restaurants)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

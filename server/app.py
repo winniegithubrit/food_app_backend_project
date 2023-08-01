@@ -6,10 +6,13 @@ from datetime import datetime
 from flask_marshmallow import Marshmallow
 from models import db
 from Restaurant import restaurants
+# from Customers import customers
 
 
 app = Flask(__name__)
+# app.register_blueprint(customers)
 app.register_blueprint(restaurants)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -26,4 +29,4 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run(port=5555)
+    app.run(port=5955)

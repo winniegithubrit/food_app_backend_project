@@ -103,7 +103,7 @@ class Restaurant(db.Model):
     restaurant_id = db.Column(db.Integer, primary_key=True)
     restaurant_name = db.Column(db.String)
     cuisine_type = db.Column(db.String)
-    contact_number = db.Column(db.Integer)
+    contact_number = db.Column(db.String)
     opening_hours = db.Column(db.Time)
     delivery_fee = db.Column(db.Integer)
     image = db.Column(db.String)

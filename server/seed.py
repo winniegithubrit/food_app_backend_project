@@ -18,6 +18,8 @@ with app.app_context():
         
         opening_hours_str = fake.time()  
         opening_hours_time = datetime.strptime(opening_hours_str, '%H:%M:%S').time() 
+        closing_hours_str = fake.time()  
+        closing_hours_time = datetime.strptime(opening_hours_str, '%H:%M:%S').time() 
         
         delivery_fee = fake.random_int(min=0, max=10)  
         image = fake.image_url()

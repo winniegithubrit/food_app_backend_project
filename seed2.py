@@ -80,7 +80,7 @@ user_type = ['restaurent_owner', 'employee', 'customer']
 
 with app.app_context():
     for data in user_data:
-        user = User(
+        users = User(
             id=data["id"],
             first_name=data["first_name"],
             last_name=data["last_name"],
@@ -88,7 +88,7 @@ with app.app_context():
             user_type=data["user_type"],
             password=data["password"]
         )
-        db.session.add(user)
+        db.session.add(users)
 
     db.session.commit()
 

@@ -5,12 +5,13 @@ from flask_migrate import Migrate
 from datetime import datetime
 from flask_marshmallow import Marshmallow
 from models import db
+from User import user
 from Restaurant import restaurants
-# from Customers import customers
+
 
 
 app = Flask(__name__)
-# app.register_blueprint(customers)
+app.register_blueprint(user)
 app.register_blueprint(restaurants)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://steve:steve@localhost/foodapp'

@@ -59,25 +59,21 @@ def create_restaurants():
 
 @restaurants.route('/restaurants/<int:restaurant_id>', methods=['PATCH'])
 def update_restaurant(restaurant_id):
-  data = request.get_json()
-  
-  restaurant = Restaurant.query.filter_by(restaurant_id=restaurant_id).first()
-  if not restaurant:
-    return jsonify({'message':"the restaurant you are looking for is not found"}), 404
-  restaurant_schema = RestaurantSchema()
-  updated_restaurant_data = restaurant_schema.load(data,partial=True)
-  
-  restaurant.restaurant_id = updated_restaurant_data.get('restaurant', restaurant.restaurant_id)
-  restaurant.owner_id = updated_restaurant_data.get('restaurant', restaurant.owner_id)
-  restaurant.restaurant_name = updated_restaurant_data.get('restaurant', restaurant.restaurant_name)
-  restaurant.contact_number = updated_restaurant_data.get('restaurant', restaurant.contact_number)
-  restaurant.opening_hours = updated_restaurant_data.get('restaurant', restaurant.opening_hours)
-  restaurant.closing_hours = updated_restaurant_data.get('restaurant', restaurant.closing_hours)
-  restaurant.image = updated_restaurant_data.get('restaurant', restaurant.image)
-  restaurant.payment_method = updated_restaurant_data.get('restaurant', restaurant.payment_method)
-  db.session.commit()
-  restaurant_data = restaurant_schema.dump(restaurant)
-  return jsonify(restaurant_data)
+    data = request.get_json()
+
+    restaurant = Restaurant.query.filter_by(restaurant_id=restaurant_id).first()
+    if not restaurant:
+        return jsonify({'message': "The restaurant you are looking for is not found"}), 404
+
+    restaurant_schema = RestaurantSchema()
+    updated_restaurant_data = restaurant_schema.load(data, partial=True)
+
+    for key, value in updated_restaurant_data.get('restaurant', {}).items():
+        setattr(restaurant, key, value)
+
+    db.session.commit()
+    restaurant_data = restaurant_schema.dump(restaurant)
+    return jsonify(restaurant_data)
 
 
 @restaurants.route('/restaurants/<int:restaurant_id>', methods=['DELETE'])
@@ -135,25 +131,24 @@ def create_menus():
     menu_data = menu_schema.dump(new_menu)
     return jsonify(menu_data), 201
 
-@restaurants.route('/menus/<int:menus_id>', methods=['PATCH'])
+@restaurants.route('/menus/<int:menu_id>', methods=['PATCH'])
 def update_menu(menu_id):
-  data = request.get_json()
-  
-  menu = Menu.query.filter_by(menu_id=menu_id).first()
-  if not menu:
-    return jsonify({'message':"the menu you are looking for is not found"}), 404
-  menu_schema = MenuSchema()
-  updated_menu_data = menu_schema.load(data,partial=True)
-  
-  menu.menu_id = updated_menu_data.get('menu', menu.menu_id)
-  menu.restaurant_id = updated_menu_data.get('menu', menu.restaurant_id)
-  menu.menu_name = updated_menu_data.get('menu', menu.menu_name)
-  menu.description = updated_menu_data.get('menu', menu.description)
-  menu.prices = updated_menu_data.get('menu', menu.prices)
+    data = request.get_json()
 
-  db.session.commit()
-  menu_data = menu_schema.dump(menu)
-  return jsonify(menu_data)
+    menu = Menu.query.filter_by(menu_id=menu_id).first()
+    if not menu:
+        return jsonify({'message': "The menu you are looking for is not found"}), 404
+
+    menu_schema = MenuSchema()
+    updated_menu_data = menu_schema.load(data, partial=True)
+
+    for key, value in updated_menu_data.get('menu', {}).items():
+        setattr(menu, key, value)
+
+    db.session.commit()
+    menu_data = menu_schema.dump(menu)
+    return jsonify(menu_data)
+
 
 
 @restaurants.route('/menus/<int:menu_id>', methods=['DELETE'])
@@ -219,25 +214,22 @@ def create_orders():
 
 @restaurants.route('/orders/<int:order_id>', methods=['PATCH'])
 def update_order(order_id):
-  data = request.get_json()
-  
-  order = Order.query.filter_by(order_id=order_id).first()
-  if not order:
-    return jsonify({'message':"the order you are looking for is not found"}), 404
-  order_schema = OrderSchema()
-  updated_order_data = order_schema.load(data,partial=True)
-  
-  order.order_id = updated_order_data.get('order', order.order_id)
-  order.menu_id = updated_order_data.get('order', order.menu_id)
-  order.total_price = updated_order_data.get('order', order.total_price)
-  order.order_date_and_time = updated_order_data.get('order', order.order_date_and_time)
-  order.address = updated_order_data.get('order', order.address)
-  order.payment_method = updated_order_data.get('order', order.payment_method)
+    data = request.get_json()
 
+    order = Order.query.filter_by(order_id=order_id).first()
+    if not order:
+        return jsonify({'message': "The order you are looking for is not found"}), 404
 
-  db.session.commit()
-  order_data = order_schema.dump(order)
-  return jsonify(order_data)
+    order_schema = OrderSchema()
+    updated_order_data = order_schema.load(data, partial=True)
+
+    for key, value in updated_order_data.get('order', {}).items():
+        setattr(order, key, value)
+
+    db.session.commit()
+    order_data = order_schema.dump(order)
+    return jsonify(order_data)
+
 
 
 @restaurants.route('/orders/<int:order_id>', methods=['DELETE'])
@@ -299,24 +291,22 @@ def create_payment():
 
 @restaurants.route('/payment/<int:payment_id>', methods=['PATCH'])
 def update_payment(payment_id):
-  data = request.get_json()
-  
-  payment = Payment.query.filter_by(payment_id=payment_id).first()
-  if not payment:
-    return jsonify({'message':"the payment you are looking for is not found"}), 404
-  payment_schema = PaymentSchema()
-  updated_payment_data = payment_schema.load(data,partial=True)
-  
-  payment.payment_id = updated_payment_data.get('payment', payment.payment_id)
-  payment.restaurant_id = updated_payment_data.get('payment', payment.restaurant_id)
-  payment.payment_type = updated_payment_data.get('payment', payment.payment_type)
-  payment.payment_amount = updated_payment_data.get('payment', payment.payment_amount)
-  payment.payment_date_and_time = updated_payment_data.get('payment', payment.payment_date_and_time)
-  payment.payment_status = updated_payment_data.get('payment', payment.payment_status)
+    data = request.get_json()
 
-  db.session.commit()
-  payment_data = payment_schema.dump(payment)
-  return jsonify(payment_data)
+    payment = Payment.query.filter_by(payment_id=payment_id).first()
+    if not payment:
+        return jsonify({'message': "The payment you are looking for is not found"}), 404
+
+    payment_schema = PaymentSchema()
+    updated_payment_data = payment_schema.load(data, partial=True)
+
+    for key, value in updated_payment_data.get('payment', {}).items():
+        setattr(payment, key, value)
+
+    db.session.commit()
+    payment_data = payment_schema.dump(payment)
+    return jsonify(payment_data)
+
 
 
 @restaurants.route('/payment/<int:payment_id>', methods=['DELETE'])

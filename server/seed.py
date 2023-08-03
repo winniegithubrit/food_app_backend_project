@@ -85,5 +85,23 @@ with app.app_context():
 
     db.session.bulk_save_objects(restaurants)
     db.session.commit()
+    
+    # Generate fake payments
+payments = []
+for i in range(10):
+    restaurant_id = fake.random_int(min=1, max=10)  # Assuming there are 20 restaurants in the database
+    payment_type = fake.random_element(elements=("Mpesa", "Stripe"))
+    payment_amount = fake.random_int(min=10, max=1000)  # Assuming payment amount range from 10 to 1000
+    payment_date_and_time = fake.date_time_between(start_date='-30d', end_date='now')
+    payment_status = fake.random_element(elements=("success", "pending", "failed"))
 
-print("Database seeded successfully.")
+    payments.append({
+        'restaurant_id': restaurant_id,
+        'payment_type': payment_type,
+        'payment_amount': payment_amount,
+        'payment_date_and_time': payment_date_and_time,
+        'payment_status': payment_status
+    })
+
+
+

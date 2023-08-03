@@ -1,40 +1,89 @@
 from faker import Faker
-from models import db, Restaurant
-from app import app
 from datetime import datetime
+from models import db, User, Restaurant, Owner
+from app import app
+import bcrypt
+import random
 
 fake = Faker()
 
 with app.app_context():
+    # Generate fake users
+    db.session.query(User).delete()
     db.session.query(Restaurant).delete()
+    db.session.query(Owner).delete()
     db.session.commit()
-    
-    restaurant_list = []  
-    
+
+    users = []
     for i in range(10):
+        username = fake.user_name()
+        email = fake.email()
+        password = fake.password() or "defaultpassword"
+        user_type = random.choice([True, False])
+        blocked = random.choice([None, 'temporary', 'permanent'])
+        activity = fake.text()
+
+        # Hash the password
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+        user = User(
+            user_name=username,
+            email=email,
+            password=hashed_password,
+            type=user_type,
+            blocked=blocked,
+            activity=activity
+        )
+        users.append(user)
+
+    db.session.bulk_save_objects(users)
+    db.session.commit()
+
+    # Generate fake owners
+    owners = []
+    for i in range(5):
+        owner_name = fake.name()
+        owner_email = fake.email()
+        owner_password = fake.password() or "defaultpassword"
+        owner_image = fake.image_url()
+
+        # Hash the password
+        hashed_password = bcrypt.hashpw(owner_password.encode('utf-8'), bcrypt.gensalt())
+
+        owner = Owner(
+            name=owner_name,
+            email=owner_email,
+            password=hashed_password,
+            image=owner_image
+        )
+        owners.append(owner)
+
+    db.session.bulk_save_objects(owners)
+    db.session.commit()
+
+    # Generate fake restaurants
+    restaurants = []
+    for i in range(10):
+        owner_id = random.choice(owners).owner_id
         restaurant_name = fake.company()
-        cuisine_type = fake.random_element(elements=('Italian', 'Chinese', 'Mexican', 'Indian', 'Japanese'))
         contact_number = fake.phone_number()
-        
-        opening_hours_str = fake.time()  
-        opening_hours_time = datetime.strptime(opening_hours_str, '%H:%M:%S').time() 
-        closing_hours_str = fake.time()  
-        closing_hours_time = datetime.strptime(opening_hours_str, '%H:%M:%S').time() 
-        
-        delivery_fee = fake.random_int(min=0, max=10)  
+        opening_hours = datetime.strptime(fake.time(), "%H:%M:%S").time()
+        closing_hours = datetime.strptime(fake.time(), "%H:%M:%S").time()
         image = fake.image_url()
-        payment_method = fake.random_element(elements=('Cash', 'Credit Card', 'PayPal', 'Mpesa'))
+        payment_method = random.choice(["Mpesa", "Stripe"])
 
         restaurant = Restaurant(
+            owner_id=owner_id,
             restaurant_name=restaurant_name,
-            cuisine_type=cuisine_type,
             contact_number=contact_number,
-            opening_hours=opening_hours_time, 
-            delivery_fee=delivery_fee,
+            opening_hours=opening_hours,
+            closing_hours=closing_hours,
             image=image,
             payment_method=payment_method
         )
-        restaurant_list.append(restaurant) 
-    
-    db.session.bulk_save_objects(restaurant_list)  
+        restaurants.append(restaurant)
+
+    db.session.bulk_save_objects(restaurants)
     db.session.commit()
+
+print("Database seeded successfully.")

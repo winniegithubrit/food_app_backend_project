@@ -13,7 +13,7 @@ app = Flask(__name__)
 # app.register_blueprint(customers)
 app.register_blueprint(restaurants)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://nathalie:winnie@localhost/nathalie'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://steve:steve@localhost/foodapp'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 

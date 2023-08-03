@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify,Flask,request
 from flask_marshmallow import Marshmallow
-from models import Restaurant,db
+from models import Restaurant,db,Menu,Order,Payment
 
 restaurants = Blueprint("restaurants", __name__)
 ma = Marshmallow()
@@ -24,6 +24,7 @@ ma.init_app(app)
 def index():
     return "This is the Products page"
 
+# RESTAURANTS
 @restaurants.route('/restaurants', methods=['GET'])
 def get_all_restaurants():
     restaurants_list = Restaurant.query.all()
@@ -57,7 +58,7 @@ def create_restaurants():
     return jsonify(restaurant_data), 201
 
 @restaurants.route('/restaurants/<int:restaurant_id>', methods=['PATCH'])
-def create_restaurant(restaurant_id):
+def update_restaurant(restaurant_id):
   data = request.get_json()
   
   restaurant = Restaurant.query.filter_by(restaurant_id=restaurant_id).first()
@@ -66,12 +67,290 @@ def create_restaurant(restaurant_id):
   restaurant_schema = RestaurantSchema()
   updated_restaurant_data = restaurant_schema.load(data,partial=True)
   
+  restaurant.restaurant_id = updated_restaurant_data.get('restaurant', restaurant.restaurant_id)
+  restaurant.owner_id = updated_restaurant_data.get('restaurant', restaurant.owner_id)
   restaurant.restaurant_name = updated_restaurant_data.get('restaurant', restaurant.restaurant_name)
-  restaurant.cuisine_type = updated_restaurant_data.get('restaurant', restaurant.cuisine_type)
   restaurant.contact_number = updated_restaurant_data.get('restaurant', restaurant.contact_number)
   restaurant.opening_hours = updated_restaurant_data.get('restaurant', restaurant.opening_hours)
-  restaurant.delivery_fee = updated_restaurant_data.get('restaurant', restaurant.delivery_)
+  restaurant.closing_hours = updated_restaurant_data.get('restaurant', restaurant.closing_hours)
+  restaurant.image = updated_restaurant_data.get('restaurant', restaurant.image)
+  restaurant.payment_method = updated_restaurant_data.get('restaurant', restaurant.payment_method)
   db.session.commit()
   restaurant_data = restaurant_schema.dump(restaurant)
   return jsonify(restaurant_data)
+
+
+@restaurants.route('/restaurants/<int:restaurant_id>', methods=['DELETE'])
+def delete_restaurant(restaurant_id):
+    restaurant = Restaurant.query.filter_by(restaurant_id=restaurant_id).first()
+    if not restaurant:
+        return jsonify({'message': 'Restaurant not found'}), 404
+
+    db.session.delete(restaurant)
+    db.session.commit()
+
+    return jsonify({'message': 'Restaurant deleted succesfully'}), 204
+
+# MENUS
+
+class MenuSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Menu
+        menu_id = ma.auto_field()
+        restaurant_id = ma.auto_field()
+        menu_name = ma.auto_field()
+        description = ma.auto_field()
+        prices = ma.auto_field()
+        
+@restaurants.route('/menus', methods=['GET'])
+def get_all_menus():
+    menu_list = Menu.query.all()
+    menu_schema = MenuSchema(many=True)
+    menu_data = menu_schema.dump(menu_list)  
+    return jsonify(menu_data)
+
+
+@restaurants.route('/menus/<int:menu_id>', methods=['GET'])
+def get_menu(menu_id):
+    menu = Menu.query.filter_by(menu_id=menu_id).first()
+    if menu is None:
+        return jsonify({'message': 'Menu is not found'}), 404
+
+    menu_schema = MenuSchema()
+    menu_data = menu_schema.dump(menu)
+    return jsonify(menu_data)
+
+@restaurants.route('/menus', methods=['POST'])
+def create_menus():
+    data = request.get_json()
+
+    menu_schema = MenuSchema()
+    menu = menu_schema.load(data)
+
+    new_menu = Menu(**menu)
+
+    db.session.add(new_menu)
+    db.session.commit()
+
+    menu_data = menu_schema.dump(new_menu)
+    return jsonify(menu_data), 201
+
+@restaurants.route('/menus/<int:menus_id>', methods=['PATCH'])
+def update_menu(menu_id):
+  data = request.get_json()
+  
+  menu = Menu.query.filter_by(menu_id=menu_id).first()
+  if not menu:
+    return jsonify({'message':"the menu you are looking for is not found"}), 404
+  menu_schema = MenuSchema()
+  updated_menu_data = menu_schema.load(data,partial=True)
+  
+  menu.menu_id = updated_menu_data.get('menu', menu.menu_id)
+  menu.restaurant_id = updated_menu_data.get('menu', menu.restaurant_id)
+  menu.menu_name = updated_menu_data.get('menu', menu.menu_name)
+  menu.description = updated_menu_data.get('menu', menu.description)
+  menu.prices = updated_menu_data.get('menu', menu.prices)
+
+  db.session.commit()
+  menu_data = menu_schema.dump(menu)
+  return jsonify(menu_data)
+
+
+@restaurants.route('/menus/<int:menu_id>', methods=['DELETE'])
+def delete_menu(menu_id):
+    menu = Menu.query.filter_by(menu_id=menu_id).first()
+    if not menu:
+        return jsonify({'message': 'Menu not found'}), 404
+
+    db.session.delete(menu)
+    db.session.commit()
+
+    return jsonify({'message': 'Menu deleted succesfully'}), 204
+
+
+# ORDERS
+
+class OrderSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Order
+        order_id = ma.auto_field()
+        menu_id = ma.auto_field()
+        total_price = ma.auto_field()
+        order_date_and_time = ma.auto_field()
+        address = ma.auto_field()
+        payment_method = ma.auto_field()
+        
+
+
+@restaurants.route('/orders', methods=['GET'])
+def get_all_orders():
+    order_list = Order.query.all()
+    order_schema = OrderSchema(many=True)
+    order_data = order_schema.dump(order_list)  
+    return jsonify(order_data)
+
+
+@restaurants.route('/orders/<int:order_id>', methods=['GET'])
+def get_orders(order_id):
+    order = Order.query.filter_by(order_id=order_id).first()
+    if order is None:
+        return jsonify({'message': 'Orders are not found'}), 404
+
+    order_schema = OrderSchema()
+    order_data = order_schema.dump(order)
+    return jsonify(order_data)
+
+
+@restaurants.route('/orders', methods=['POST'])
+def create_orders():
+    data = request.get_json()
+
+    order_schema = OrderSchema()
+    order = order_schema.load(data)
+
+    new_order = Order(**order)
+
+    db.session.add(new_order)
+    db.session.commit()
+
+    order_data = order_schema.dump(new_order)
+    return jsonify(order_data), 201
+
+
+@restaurants.route('/orders/<int:order_id>', methods=['PATCH'])
+def update_order(order_id):
+  data = request.get_json()
+  
+  order = Order.query.filter_by(order_id=order_id).first()
+  if not order:
+    return jsonify({'message':"the order you are looking for is not found"}), 404
+  order_schema = OrderSchema()
+  updated_order_data = order_schema.load(data,partial=True)
+  
+  order.order_id = updated_order_data.get('order', order.order_id)
+  order.menu_id = updated_order_data.get('order', order.menu_id)
+  order.total_price = updated_order_data.get('order', order.total_price)
+  order.order_date_and_time = updated_order_data.get('order', order.order_date_and_time)
+  order.address = updated_order_data.get('order', order.address)
+  order.payment_method = updated_order_data.get('order', order.payment_method)
+
+
+  db.session.commit()
+  order_data = order_schema.dump(order)
+  return jsonify(order_data)
+
+
+@restaurants.route('/orders/<int:order_id>', methods=['DELETE'])
+def delete_order(order_id):
+    order = Order.query.filter_by(order_id=order_id).first()
+    if not order:
+        return jsonify({'message': 'Order not found'}), 404
+
+    db.session.delete(order)
+    db.session.commit()
+
+    return jsonify({'message': 'Order deleted succesfully'}), 204
+
+# PAYMENT
+
+class PaymentSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Payment
+        payment_id = ma.auto_field()
+        restaurant_id =  ma.auto_field()
+        payment_type =  ma.auto_field()
+        payment_amount =  ma.auto_field()
+        payment_date_and_time =  ma.auto_field()
+        payment_status =  ma.auto_field()
+        
+@restaurants.route('/payment', methods=['GET'])
+def get_all_payments():
+    payment_list = Payment.query.all()
+    payment_schema = PaymentSchema(many=True)
+    payment_data = payment_schema.dump(payment_list)  
+    return jsonify(payment_data)
+
+
+@restaurants.route('/payment/<int:payment_id>', methods=['GET'])
+def get_payment(payment_id):
+    payment = Payment.query.filter_by(payment_id=payment_id).first()
+    if payment is None:
+        return jsonify({'message': 'Payments are not found'}), 404
+
+    payment_schema = PaymentSchema()
+    payment_data = payment_schema.dump(payment)
+    return jsonify(payment_data)
+
+@restaurants.route('/payment', methods=['POST'])
+def create_payment():
+    data = request.get_json()
+
+    payment_schema = PaymentSchema()
+    payment = payment_schema.load(data)
+
+    new_payment = Payment(**payment)
+
+    db.session.add(new_payment)
+    db.session.commit()
+
+    payment_data = payment_schema.dump(new_payment)
+    return jsonify(payment_data), 201
+
+
+@restaurants.route('/payment/<int:payment_id>', methods=['PATCH'])
+def update_payment(payment_id):
+  data = request.get_json()
+  
+  payment = Payment.query.filter_by(payment_id=payment_id).first()
+  if not payment:
+    return jsonify({'message':"the payment you are looking for is not found"}), 404
+  payment_schema = PaymentSchema()
+  updated_payment_data = payment_schema.load(data,partial=True)
+  
+  payment.payment_id = updated_payment_data.get('payment', payment.payment_id)
+  payment.restaurant_id = updated_payment_data.get('payment', payment.restaurant_id)
+  payment.payment_type = updated_payment_data.get('payment', payment.payment_type)
+  payment.payment_amount = updated_payment_data.get('payment', payment.payment_amount)
+  payment.payment_date_and_time = updated_payment_data.get('payment', payment.payment_date_and_time)
+  payment.payment_status = updated_payment_data.get('payment', payment.payment_status)
+
+  db.session.commit()
+  payment_data = payment_schema.dump(payment)
+  return jsonify(payment_data)
+
+
+@restaurants.route('/payment/<int:payment_id>', methods=['DELETE'])
+def delete_payment(payment_id):
+    payment = Payment.query.filter_by(payment_id=payment_id).first()
+    if not payment:
+        return jsonify({'message': 'Payment not found'}), 404
+
+    db.session.delete(payment)
+    db.session.commit()
+
+    return jsonify({'message': 'Payment deleted succesfully'}), 204
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
   

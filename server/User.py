@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify,request
 from flask_marshmallow import Marshmallow
-from models import User,db,Customers,Driver
+from models import User,db,Customers,Driver,Admin
 
 user = Blueprint("User", __name__)
 ma = Marshmallow(user)

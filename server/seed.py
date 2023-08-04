@@ -64,7 +64,7 @@ with app.app_context():
     # Generate fake restaurants
     restaurants = []
     for i in range(10):
-        owner_id = random.choice(owners).owner_id
+      
         restaurant_name = fake.company()
         contact_number = fake.phone_number()
         opening_hours = datetime.strptime(fake.time(), "%H:%M:%S").time()
@@ -73,7 +73,7 @@ with app.app_context():
         payment_method = random.choice(["Mpesa", "Stripe"])
 
         restaurant = Restaurant(
-            owner_id=owner_id,
+          
             restaurant_name=restaurant_name,
             contact_number=contact_number,
             opening_hours=opening_hours,

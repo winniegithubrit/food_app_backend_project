@@ -1,6 +1,7 @@
-from flask import Blueprint, jsonify,Flask,request
+from flask import Blueprint, jsonify,Flask,request,make_response
 from flask_marshmallow import Marshmallow
 from models import Restaurant,db,Menu,Order,Payment
+# from marshmallow import Schema, fields
 
 restaurants = Blueprint("restaurants", __name__)
 ma = Marshmallow()
@@ -273,39 +274,29 @@ def get_payment(payment_id):
     payment_data = payment_schema.dump(payment)
     return jsonify(payment_data)
 
-@restaurants.route('/payment', methods=['POST'])
+@restaurants.route('/payments', methods=['POST'])
 def create_payment():
     data = request.get_json()
-
-    payment_schema = PaymentSchema()
-    payment = payment_schema.load(data)
-
+    payment = PaymentSchema().load(data)
     new_payment = Payment(**payment)
-
     db.session.add(new_payment)
     db.session.commit()
-
-    payment_data = payment_schema.dump(new_payment)
-    return jsonify(payment_data), 201
+    payment_data = PaymentSchema().dump(new_payment)
+    return make_response(jsonify(payment_data), 201)
 
 
 @restaurants.route('/payment/<int:payment_id>', methods=['PATCH'])
-def update_payment(payment_id):
-    data = request.get_json()
-
+def update_payment_details(payment_id):
     payment = Payment.query.filter_by(payment_id=payment_id).first()
-    if not payment:
-        return jsonify({'message': "The payment you are looking for is not found"}), 404
-
-    payment_schema = PaymentSchema()
-    updated_payment_data = payment_schema.load(data, partial=True)
-
-    for key, value in updated_payment_data.get('payment', {}).items():
-        setattr(payment, key, value)
-
+    data = request.get_json()
+    payment = PaymentSchema().load(data)
+    for field, value in data.items():  
+        setattr(payment, field, value)
+    db.session.add(payment)
     db.session.commit()
-    payment_data = payment_schema.dump(payment)
-    return jsonify(payment_data)
+
+    payment_data = PaymentSchema().dump(payment)
+    return make_response(jsonify(payment_data))
 
 
 

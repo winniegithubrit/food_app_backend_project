@@ -1,6 +1,6 @@
-from flask import Blueprint, jsonify,request
+from flask import Blueprint, jsonify,request,make_response
 from flask_marshmallow import Marshmallow
-from models import User,db,Customers,Driver,Admin
+from models import User,db,Customers,Driver,Admin,SuperAdmin,Favourites
 
 user = Blueprint("User", __name__)
 ma = Marshmallow(user)
@@ -235,11 +235,14 @@ def delete_user(user_id):
 class AdminSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Admin
+        admin_id = ma.auto_field()
+        customer_id = ma.auto_field()
+        restaurant_id = ma.auto_field()
         owner_id = ma.auto_field()
         name = ma.auto_field()
-        email = ma.auto_field()
         password = ma.auto_field()
         image = ma.auto_field()
+        
         
 @user.route('/admin', methods=['GET'])
 def get_all_admin():
@@ -249,7 +252,133 @@ def get_all_admin():
     return jsonify(admin_data)
 
 
+@user.route('/admin/<int:admin_id>', methods=['GET'])
+def get_admin_by_id(admin_id):
+    admin = Admin.query.get(admin_id)
+    if admin is None:
+        return jsonify({'message': 'Admin not found'}), 404
+    admin_schema = AdminSchema()
+    admin_data = admin_schema.dump(admin)
+    return jsonify(admin_data)
+
+
+@user.route('/admin', methods=['POST'])
+def create_admin():
+    data = request.get_json()
+
+    admin_schema = AdminSchema()
+    admin = admin_schema.load(data)
+
+    new_admin = Admin(**admin)
+
+    db.session.add(new_admin)
+    db.session.commit()
+
+    admin_data = admin_schema.dump(new_admin)
+    return jsonify(admin_data), 201
+
+@user.route('/admin/<int:admin_id>', methods=['DELETE'])
+def delete_admin(admin_id):
+    admin = Admin.query.filter_by(admin_id=admin_id).first()
+    if not admin:
+        return jsonify({'message': 'Admin not found'}), 404
+
+    db.session.delete(admin)
+    db.session.commit()
+
+    return jsonify({'message': 'admin deleted succesfully'}), 204
+
+# SUPERADMIN
+
+class SuperAdminSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = SuperAdmin
+        superadmin_id = ma.auto_field()
+        customer_id = ma.auto_field()
+        restaurant_id = ma.auto_field()
+        owner_id = ma.auto_field()
+        name = ma.auto_field()
+        password = ma.auto_field()
+        image = ma.auto_field()
         
-    
+@user.route('/superadmin', methods=['GET'])
+def get_all_superadmin():
+    superadmin = SuperAdmin.query.all()
+    superadmin_schema = SuperAdminSchema(many=True)
+    superadmin_data = superadmin_schema.dump(superadmin)
+    return jsonify(superadmin_data)
 
 
+@user.route('/superadmin/<int:superadmin_id>', methods=['GET'])
+def get_superadmin_by_id(superadmin_id):
+    superadmin = SuperAdmin.query.get(superadmin_id)
+    if superadmin is None:
+        return jsonify({'message': 'SuperAdmin not found'}), 404
+    superadmin_schema = SuperAdminSchema()
+    superadmin_data = superadmin_schema.dump(superadmin)
+    return jsonify(superadmin_data)
+
+
+@user.route('/superadmin', methods=['POST'])
+def create_superadmin():
+    data = request.get_json()
+
+    superadmin_schema = SuperAdminSchema()
+    superadmin = superadmin_schema.load(data)
+
+    new_superadmin = SuperAdmin(**superadmin)
+
+    db.session.add(new_superadmin)
+    db.session.commit()
+
+    superadmin_data = superadmin_schema.dump(new_superadmin)
+    return jsonify(superadmin_data), 201
+
+@user.route('/superadmin/<int:superadmin_id>', methods=['DELETE'])
+def delete_superadmin(superadmin_id):
+    superadmin = SuperAdmin.query.filter_by(superadmin_id=superadmin_id).first()
+    if not superadmin:
+        return jsonify({'message': 'SuperAdmin not found'}), 404
+
+    db.session.delete(superadmin)
+    db.session.commit()
+
+    return jsonify({'message': 'Superadmin deleted succesfully'}), 204
+
+        #   FAVOURITES
+        
+class FavouritesSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Favourites
+        favouite_id = ma.auto_field()
+        user_id = ma.auto_field()
+        menu_id = ma.auto_field()
+
+@user.route('/favourites', methods=['GET'])
+def get_all_favourites():
+    favourite = Favourites.query.all()
+    favourite_schema = FavouritesSchema(many=True)
+    favourite_data = favourite_schema.dump(favourite)
+    return jsonify(favourite_data)
+
+
+@user.route('/favourites', methods=['POST'])
+def create_favourites():
+    data = request.get_json()
+    favourite = FavouritesSchema().load(data)
+    new_favourite = Favourites(**favourite)
+    db.session.add(new_favourite)
+    db.session.commit()
+    favourite_data = FavouritesSchema().dump(new_favourite)
+    return make_response(jsonify(favourite_data), 201)
+
+@user.route('/favourites/<int:favourite_id>', methods=['DELETE'])
+def delete_favourite(favourite_id):
+    favourite = Favourites.query.filter_by(favourite_id=favourite_id).first()
+    if not favourite:
+        return jsonify({'message': 'Favourites not found'}), 404
+
+    db.session.delete(favourite)
+    db.session.commit()
+
+    return jsonify({'message': 'Favourites deleted succesfully'}), 204

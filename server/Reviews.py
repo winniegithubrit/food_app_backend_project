@@ -57,11 +57,11 @@ def update_customer_review(review_id):
         return jsonify({'message': 'Customer review not found'}), 404
 
     data = request.get_json()
-    customer_review = CustomerReviewsSchema().load(data)
+    customer_reviews = CustomerReviewsSchema().load(data)
 
-    for field, value in data.items():  
+    for field, value in customer_reviews.items():  
         setattr(customer_review, field, value)
-
+    db.session.add(customer_review)
     db.session.commit()
     customer_review_data = CustomerReviewsSchema().dump(customer_review)
     return make_response(jsonify(customer_review_data))

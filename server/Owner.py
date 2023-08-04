@@ -56,8 +56,8 @@ def create_owners():
 def update_owners_details(owner_id):
     owner = Owner.query.filter_by(owner_id=owner_id).first()
     data = request.get_json()
-    owner = OwnerSchema().load(data)
-    for field, value in data.items():  
+    owners = OwnerSchema().load(data)
+    for field, value in owners.items():  
         setattr(owner, field, value)
     db.session.add(owner)
     db.session.commit()
@@ -120,8 +120,8 @@ def create_deliveries():
 def update_deliveries_details(delivery_id):
     deliveries = Deliveries.query.filter_by(delivery_id=delivery_id).first()
     data = request.get_json()
-    deliveries = DeliveriesSchema().load(data)
-    for field, value in data.items():  
+    deliveriess = DeliveriesSchema().load(data)
+    for field, value in deliveriess.items():  
         setattr(deliveries, field, value)
     db.session.add(deliveries)
     db.session.commit()

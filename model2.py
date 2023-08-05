@@ -1,37 +1,31 @@
-# from flask_sqlalchemy import SQLAlchemy
-# from main2 import app
-
-# db = SQLAlchemy()
-
-# class User(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     firstname = db.Column(db.String(40))
-#     secondname = db.Column(db.String(40))
-#     email = db.Column(db.String(40), unique=True)
-#     password = db.Column(db.String(200))
-#     user_type = db.Column(db.String(200), nullable=True)
-    
-#     def __init__(self, firstname, secondname, email, password, user_type):
-#         self.firstname = firstname
-#         self.secondname = secondname
-#         self.email = email
-#         self.password = password
-#         self.user_type = user_type
+#model.py
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import check_password_hash
+# from app import db
 
 db = SQLAlchemy()
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(40))
-    last_name = db.Column(db.String(40))
-    email = db.Column(db.String(40), unique=True)
-    password = db.Column(db.String(200))
-    user_type = db.Column(db.String(200), nullable=True)
+    __tablename__ = 'users'
+    user_id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(256), nullable=False)
+    user_role = db.Column(db.String, default=False)
+    blocked = db.Column(db.Boolean, default=False)
+    activity = db.Column(db.Boolean, default=False)
 
-    def __init__(self, first_name, last_name, email, password, user_type):
-        self.first_name = first_name
-        self.last_name = last_name
+    def __init__(self,username, email, password, user_role, blocked, activity):
+        # self.user_id = user_id
+        self.username = username
         self.email = email
         self.password = password
-        self.user_type = user_type
+        self.user_role = user_role
+        self.blocked = blocked
+        self.activity = activity
+
+    def confirm_password(self,password):
+        return check_password_hash(self.password,password)
+    
+    def __repr__(self):
+        return f'<User:{self.username}'

@@ -1,5 +1,5 @@
 #app.py
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response,redirect, url_for
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity,JWTManager,jwt_required
 import jwt
 from functools import wraps
@@ -47,15 +47,39 @@ def token_required(f):
         return f(*args, **kwargs)
     return decorated
 
-@app.route('/protected')
-# @token_required
-def protected():
-    return jsonify({"message":"logged in successfully"})
+@app.route('/superadmin/<token>')
+@jwt_required(optional=True)
+def superadmin(token):
+    return jsonify(token=f"superadmin : {token}")
+
+@app.route('/admin/<token>')
+@jwt_required(optional=True)
+def admin(token):
+    return jsonify(token=f"admin : {token}")
+
+@app.route('/customer/<token>')
+@jwt_required(optional=True)
+def customer(token):
+    return jsonify(token=f"student : {token}")
+
+@app.route('/driver/<token>')
+@jwt_required(optional=True)
+def driver(token):
+    return jsonify(token=f"driver : {token}")
+
+@app.route('/orders')
+@jwt_required(optional=True)
+def orders():
+    details = get_jwt()
+    if details["user_role"]!='driver':
+        return redirect(url_for("guest"))
+    return jsonify(detail="info")
 
 @app.route('/guest')
 @jwt_required()
 def guest():
-    return jsonify(detail="You are logged in successfully")
+    details = get_jwt()
+    return jsonify(detail=f"welcome {details['username']}")
     
 @app.route('/login', methods=['POST','GET'])
 def login():
@@ -65,8 +89,13 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user:
             if user.confirm_password(password):
-                token = create_access_token(identity=user.user_id)
-                return jsonify(token=token)
+                metadata = {
+                   "user_role":user.user_role,
+                   "username":user.username
+                }
+                token = create_access_token(identity=user.user_id, additional_claims=metadata)
+                return redirect(url_for(f'{user.user_role}',token=token))
+                # return jsonify(token=token)
             return jsonify(detail="password Incorrect"),401
         return jsonify(detail="User not logged in"),401
 
@@ -106,7 +135,7 @@ def get_one_users(user_id):
     user_data['blocked'] = user.blocked
     user_data['activity'] = user.activity
     return jsonify({'users': user_data})
-    pass
+    # pass
  
 @app.route('/user', methods=['POST'])
 def user():
@@ -146,4 +175,6 @@ def delete_user(user_id):
     
 
 if __name__ == '__main__':
+    # with app.app_context():
+    #     db.create_all()
     app.run(debug=True)

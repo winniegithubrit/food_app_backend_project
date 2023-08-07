@@ -91,7 +91,7 @@ class RestaurantSchema(Schema):
     closing_hours = fields.Time()
     image = fields.String()
     payment_method = fields.String()
-    menus = fields.Nested(MenuSchema, many=True)
+    # menus = fields.Nested(MenuSchema, many=True)
 
 class UserSchema(Schema):
     user_id = fields.Integer()

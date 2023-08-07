@@ -1,22 +1,13 @@
 from flask import Blueprint, jsonify,Flask,request,make_response
 from flask_marshmallow import Marshmallow
 from models import Restaurant,db,Menu,Order,Payment
-# from marshmallow import Schema, fields
+
+from schemas import *
 
 restaurants = Blueprint("restaurants", __name__)
 ma = Marshmallow()
 
-class RestaurantSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Restaurant 
-        restaurant_name = ma.auto_field()
-        cuisine_type = ma.auto_field()
-        contact_number = ma.auto_field()
-        opening_hours = ma.auto_field()
-        closing_hours = ma.auto_field()
-        delivery_fee = ma.auto_field()
-        image = ma.auto_field()
-        payment_method = ma.auto_field()
+
 
 app = Flask(__name__)
 ma.init_app(app)
@@ -54,7 +45,7 @@ def create_restauarants():
     return make_response(jsonify(restaurant_data), 201)
 
 
-@restaurants.route('/restaurant/<int:restaurant_id>', methods=['PATCH'])
+@restaurants.route('/restaurants/<int:restaurant_id>', methods=['PATCH'])
 def update_restaurant_details(restaurant_id):
     restaurant = Restaurant.query.filter_by(restaurant_id = restaurant_id).first()
     data = request.get_json()
@@ -81,14 +72,6 @@ def delete_restaurant(restaurant_id):
 
 # MENUS
 
-class MenuSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Menu
-        menu_id = ma.auto_field()
-        restaurant_id = ma.auto_field()
-        menu_name = ma.auto_field()
-        description = ma.auto_field()
-        prices = ma.auto_field()
         
 @restaurants.route('/menus', methods=['GET'])
 def get_all_menus():
@@ -119,7 +102,7 @@ def create_menus():
     return make_response(jsonify(menu_data), 201)
 
 
-@restaurants.route('/restaurant/<int:menu_id>', methods=['PATCH'])
+@restaurants.route('/menus/<int:menu_id>', methods=['PATCH'])
 def update_menu_details(menu_id):
     menu = Menu.query.filter_by(menu_id = menu_id).first()
     data = request.get_json()
@@ -147,18 +130,6 @@ def delete_menu(menu_id):
 
 
 # ORDERS
-
-class OrderSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Order
-        order_id = ma.auto_field()
-        menu_id = ma.auto_field()
-        total_price = ma.auto_field()
-        order_date_and_time = ma.auto_field()
-        address = ma.auto_field()
-        payment_method = ma.auto_field()
-        
-
 
 @restaurants.route('/orders', methods=['GET'])
 def get_all_orders():
@@ -218,15 +189,6 @@ def delete_order(order_id):
 
 # PAYMENT
 
-class PaymentSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = Payment
-        payment_id = ma.auto_field()
-        restaurant_id =  ma.auto_field()
-        payment_type =  ma.auto_field()
-        payment_amount =  ma.auto_field()
-        payment_date_and_time =  ma.auto_field()
-        payment_status =  ma.auto_field()
         
 @restaurants.route('/payment', methods=['GET'])
 def get_all_payments():

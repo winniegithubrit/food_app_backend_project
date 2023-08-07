@@ -1,19 +1,13 @@
 from flask import Blueprint,jsonify,Flask,request,make_response
 from flask_marshmallow import Marshmallow
+from schemas import *
 
 from models import Owner,db,Deliveries,Location
 
 owners = Blueprint("Owner",__name__)
 ma = Marshmallow()
 
-class OwnerSchema(ma.SQLAlchemyAutoSchema):
-  class Meta:
-    model = Owner
-    owner_id = ma.auto_field()
-    name  = ma.auto_field()
-    email = ma.auto_field()
-    password = ma.auto_field()
-    image  = ma.auto_field()
+
     
 app = Flask(__name__)
 ma.init_app(app)    
@@ -78,15 +72,7 @@ def delete_owner(owner_id):
 
 
 # DELIVERIES
-class DeliveriesSchema(ma.SQLAlchemyAutoSchema):
-  class Meta:
-    model = Deliveries
-    delivery_id = ma.auto_field()
-    order_id = ma.auto_field() 
-    driver_id = ma.auto_field()
-    delivery_date_and_time = ma.auto_field()
-    dispatch = ma.auto_field()
-    delivered = ma.auto_field()
+
 
 @owners.route('/delieries', methods=['GET'])
 def get_all_deliveries():
@@ -143,13 +129,7 @@ def delete_deliveries(delivery_id):
 
 # LOCATION 
 
-class LocationSchema(ma.SQLAlchemyAutoSchema):
-  class Meta:
-    model = Location
-    location_id  = ma.auto_field()
-    owner_id = ma.auto_field()
-    name = ma.auto_field()
-    delivery_fee = ma.auto_field()
+
     
     
 @owners.route('/location', methods=['GET'])

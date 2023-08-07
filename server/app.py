@@ -5,6 +5,7 @@ from flask_migrate import Migrate
 from datetime import datetime
 from flask_marshmallow import Marshmallow
 from models import db
+from schemas import *
 
 
 from Restaurant import restaurants

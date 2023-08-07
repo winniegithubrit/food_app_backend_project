@@ -1,18 +1,9 @@
 from flask import Flask,Blueprint,jsonify,request,make_response
 from flask_marshmallow import Marshmallow
 from models import db,CustomerReviews,RestaurantReviews,MenuReviews
+from schemas import *
 reviews = Blueprint("Reviews",__name__)
 ma = Marshmallow()
-
-class CustomerReviewsSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = CustomerReviews
-        customerReview_id = ma.auto_field()
-        customer_id = ma.auto_field()
-        rating = ma.auto_field()
-        review_comment = ma.auto_field()
-        review_date = ma.auto_field()
-        
 
 app = Flask(__name__)
 ma.init_app(app)
@@ -78,16 +69,7 @@ def delete_customer_review(review_id):
 
     return jsonify({'message': 'Customer review deleted successfully'}), 204
   # RESTAURANT_REVIEWS
-class RestaurantReviewsSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = RestaurantReviews
-        restaurantReview_id = ma.auto_field()
-        restaurant_id = ma.auto_field()
-        rating = ma.auto_field()
-        review_comment = ma.auto_field()
-        review_date = ma.auto_field()
-        
-  
+
 # Endpoint to get all restaurant reviews
 @reviews.route('/restaurantReviews', methods=['GET'])
 def get_all_restaurant_reviews():
@@ -148,14 +130,7 @@ def delete_restaurant_review(review_id):
     return jsonify({'message': 'Restaurant review deleted successfully'}), 204
   
 # MENU REVIEWS
-class MenuReviewsSchema(ma.SQLAlchemyAutoSchema):
-    class Meta:
-        model = MenuReviews
-        menuReview_id = ma.auto_field()
-        menu_id = ma.auto_field()
-        rating = ma.auto_field()
-        review_comment = ma.auto_field()
-        review_date = ma.auto_field()
+
         
 # Endpoint to get all menu reviews
 @reviews.route('/menuReviews', methods=['GET'])

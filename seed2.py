@@ -2,14 +2,14 @@ from main2 import app
 from model2 import db, User
 
 user_data = [
-    {
-        "id": 1,
-        "first_name": "Bree",
-        "last_name": "Jeynes",
-        "email": "bjeynes0@spiegel.de",
-        "user_type": "restaurent_owner",
-        "password": "pT5(`e?Z"
-    }, {
+{
+ "id": 1,
+  "first_name": "Bree",
+  "last_name": "Jeynes",
+  "email": "bjeynes0@spiegel.de",
+  "user_type": "restaurent_owner",
+  "password": "pT5(`e?Z"
+},{
   "id": 2,
   "first_name": "Paloma",
   "last_name": "Spacey",

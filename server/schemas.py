@@ -122,3 +122,7 @@ class SuperAdminSchema(Schema):
     owner_id = fields.Integer()
     name = fields.String()
     password = fields.String()
+
+
+
+

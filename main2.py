@@ -13,7 +13,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = b'\x06\xf5\xb5\xe6\xf7\x1c\xbd\r\xc5e\xef\xb2\xf1\xcb`\xd8'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://steve:gzvhtFOUedOgHo9WaG2R5QCfcsXABXI8@dpg-cj5lg1acn0vc73d98li0-a.oregon-postgres.render.com/dbfoodapp'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
@@ -172,8 +172,18 @@ def delete_user(user_id):
     db.session.commit()
     
     return jsonify({'message': 'User has been deleted'})
-    
 
+@app.route('/cart/<int:product_id>', methods=['POST'])
+def add_to_cart(product_id):
+
+    product = Product.query.filter(Product.id == product_id)
+    cart_item = CartItem(product=product)
+    db.session.add(cart_item)
+    db.session.commit()
+
+    return jsonify({'message': 'User has been deleted'})
+
+    # return render_tempate('home.html', product=products)
 if __name__ == '__main__':
     # with app.app_context():
     #     db.create_all()

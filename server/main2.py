@@ -1,66 +1,194 @@
-from flask import Flask, request, jsonify
-import requests
-from requests.auth import HTTPBasicAuth
-from datetime import datetime
-import base64
+#app.py
+from flask import Flask, request, jsonify, make_response,redirect, url_for,Blueprint
+from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity,JWTManager,jwt_required
+import jwt
+from functools import wraps
+from flask_marshmallow import Marshmallow
+import uuid
+from flask_migrate import Migrate
+from flask_marshmallow import Marshmallow
+from werkzeug.security import generate_password_hash, check_password_hash
+from User import *
+
+main2 = Blueprint("main2",__name__)
+ma = Marshmallow()
 
 app = Flask(__name__)
+ma.init_app(app)
 
-base_url ='http://192.168.0.50:5000'  # Replace this with your actual base URL
-consumer_key = '5vMXN1BvxAlxhvt5a67Ah9mD1DQE005r'  # Replace this with your actual consumer key
-consumer_secret = 'smY4mdkX1WHucken'  # Replace this with your actual consumer secret
-
-@app.route('/')
-def home():
-    return 'Hello World!'
+app.config['SECRET_KEY'] = b'\x06\xf5\xb5\xe6\xf7\x1c\xbd\r\xc5e\xef\xb2\xf1\xcb`\xd8'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://steve:gzvhtFOUedOgHo9WaG2R5QCfcsXABXI8@dpg-cj5lg1acn0vc73d98li0-a.oregon-postgres.render.com/dbfoodapp'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
-def get_access_token():
-    endpoint = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
 
-    r = requests.get(endpoint, auth=HTTPBasicAuth(consumer_key, consumer_secret))
-    data = r.json()
-    return data.get('access_token', None)
+jwt=JWTManager(app)
 
+migrate = Migrate(app, db)
+ma = Marshmallow(app)
 
-@app.route('/access_token')
-def access_token():
-    token = get_access_token()
-    if token:
-        return jsonify({'access_token': token})
-    else:
-        return jsonify({'error': 'Failed to get access token'}), 500
+class UserSchema(ma.Schema):
+    class Meta:
+        fields = ('user_id', 'username', 'email', 'password', 'user_role', 'blocked', 'activity')
 
+user_schema = UserSchema()
+users_schema = UserSchema(many=True)
 
-@app.route('/pay', methods=['POST'])
-def init_stk():
-    endpoint = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
-    access_token = get_access_token()
-    if not access_token:
-        return jsonify({'error': 'Failed to get access token'}), 500
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.args.get('token')
 
-    headers = {"Authorization": "Bearer %s" % access_token}
-    my_endpoint = base_url + "/lnmo"
-    Timestamp = datetime.now()
-    times = Timestamp.strftime("%Y%m%d%H%M%S")
-    password = "your_shortcode_here" + "your_passkey_here" + times
-    datapass = base64.b64encode(password.encode('utf-8'))
+        if not token:
+            return({"message" : "Token is missing"})
 
-    data = {
-    "BusinessShortCode": 174379,
-    "Password": "MTc0Mzc5YmZiMjc5ZjlhYTliZGJjZjE1OGU5N2RkNzFhNDY3Y2QyZTBjODkzMDU5YjEwZjc4ZTZiNzJhZGExZWQyYzkxOTIwMjMwODA3MTA1MjQ2",
-    "Timestamp": "20230807105246",
-    "TransactionType": "CustomerPayBillOnline",
-    "Amount": 1,
-    "PartyA": 254759212840,
-    "PartyB": 174379,
-    "PhoneNumber": 254759212840,
-    "CallBackURL": "https://mydomain.com/path",
-    "AccountReference": "MunchHub",
-    "TransactionDesc": "Payment of X" 
-  }
-    res = requests.post(endpoint, json=data, headers=headers)
-    return jsonify(res.json())
+        try:
+            data = jwt.decode(token,app.config['SECRET_KEY'])
+            
+        except:
+            return ({"message": "Invalid token"})
 
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5001, debug=True)
+        return f(*args, **kwargs)
+    return decorated
+
+@app.route('/superadmin/<token>')
+@jwt_required(optional=True)
+def superadmin(token):
+    return jsonify(token=f"superadmin : {token}")
+
+@app.route('/admin/<token>')
+@jwt_required(optional=True)
+def admin(token):
+    return jsonify(token=f"admin : {token}")
+
+@app.route('/customer/<token>')
+@jwt_required(optional=True)
+def customer(token):
+    return jsonify(token=f"student : {token}")
+
+@app.route('/driver/<token>')
+@jwt_required(optional=True)
+def driver(token):
+    return jsonify(token=f"driver : {token}")
+
+@app.route('/orders')
+@jwt_required(optional=True)
+def orders():
+    details = get_jwt()
+    if details["user_role"]!='driver':
+        return redirect(url_for("guest"))
+    return jsonify(detail="info")
+
+@app.route('/guest')
+@jwt_required()
+def guest():
+    details = get_jwt()
+    return jsonify(detail=f"welcome {details['username']}")
+    
+@app.route('/login', methods=['POST','GET'])
+def login():
+    if request.method == 'POST':
+        email = request.json.get('email',None)
+        password = request.json.get('password',None)
+        user = User.query.filter_by(email=email).first()
+        if user:
+            if user.confirm_password(password):
+                metadata = {
+                   "user_role":user.user_role,
+                   "username":user.username
+                }
+                token = create_access_token(identity=user.user_id, additional_claims=metadata)
+                return redirect(url_for(f'{user.user_role}',token=token))
+                # return jsonify(token=token)
+            return jsonify(detail="password Incorrect"),401
+        return jsonify(detail="User not logged in"),401
+
+@app.route('/user', methods=['GET'])
+def get_all_users():
+     users = User.query.all()
+
+     output = []
+
+     for user in users:
+        user_data = {}
+        user_data['user_id'] = user.user_id
+        user_data['username'] = user.username
+        user_data['email'] = user.email
+        user_data['password'] = user.password
+        user_data['user_role'] = user.user_role
+        user_data['blocked'] = user.blocked
+        user_data['activity'] = user.activity
+        output.append(user_data)
+     return jsonify({'users': output})
+
+ 
+@app.route('/user/<user_id>', methods=['GET'])
+def get_one_users(user_id):
+
+    user = User.query.filter_by(user_id=user_id).first()
+
+    if not user:
+        return jsonify({'message': 'No user found!'})
+    
+    user_data = {}
+    user_data['user_id'] = user.user_id
+    user_data['username'] = user.username
+    user_data['email'] = user.email
+    user_data['password'] = user.password
+    user_data['user_role'] = user.user_role
+    user_data['blocked'] = user.blocked
+    user_data['activity'] = user.activity
+    return jsonify({'users': user_data})
+    # pass
+ 
+@app.route('/user', methods=['POST'])
+def user():
+    data = request.get_json()
+
+    hashed_password = generate_password_hash(data['password'], method='scrypt')
+
+    new_user = User(username=data['username'],password=hashed_password, email=data['email'],user_role=data['user_role'],blocked=False,activity=False)
+    db.session.add(new_user)
+    db.session.commit()
+    
+    return ({'message':'Welcome user'})
+
+@app.route('/user/<user_id>', methods=['PATCH'])
+def promote_user(user_id):
+    user = User.query.filter_by(user_id=user_id).first()
+
+    if not user:
+        return jsonify({'message': 'No user found!'})
+    
+    user.admin = True
+    db.session.commit()
+
+    return jsonify({'message': 'User promoted successfully'})
+
+@app.route('/user/<user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    user = User.query.filter_by(user_id=user_id).first()
+
+    if not user:
+        return jsonify({'message': 'No user found!'})
+    
+    db.session.delete(user)
+    db.session.commit()
+    
+    return jsonify({'message': 'User has been deleted'})
+
+@app.route('/cart/<int:product_id>', methods=['POST'])
+def add_to_cart(product_id):
+
+    product = Product.query.filter(Product.id == product_id)
+    cart_item = CartItem(product=product)
+    db.session.add(cart_item)
+    db.session.commit()
+
+    return jsonify({'message': 'User has been deleted'})
+
+    # return render_tempate('home.html', product=products)
+# if __name__ == '__main__':
+#     # with app.app_context():
+#     #     db.create_all()
+#     app.run(port=5856)

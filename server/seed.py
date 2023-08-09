@@ -915,3 +915,270 @@ from random import randint
 #         db.session.add(admin)
     
 #     db.session.commit()
+sample_data30 = [
+    
+      {
+       "menu_id": 51,
+       "restaurant_id": 1,
+       "image":"https://images.pexels.com/photos/59943/pexels-photo-59943.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "menu_name": "Burger Combos",
+       "description": "Delicious burger with fries and a drink",
+       "prices": 1200
+     },
+     {
+       "menu_id": 52,
+      "image":"https://images.pexels.com/photos/3338537/pexels-photo-3338537.jpeg?auto=compress&cs=tinysrgb&w=1600",
+      "restaurant_id": 1,
+      "menu_name": "Pasta Alfredos",
+      "description": "Creamy pasta with garlic and parmesan",
+      "prices": 950
+    },
+    {
+      "menu_id": 53,
+      "image":"https://images.pexels.com/photos/1247677/pexels-photo-1247677.jpeg?auto=compress&cs=tinysrgb&w=1600",
+      "restaurant_id": 1,
+      "menu_name": "Sushi Platterr",
+      "description": "Assortment of fresh sushi rolls",
+       "prices": 1800
+     },
+     {
+       "menu_id": 54,
+       "image":"https://images.pexels.com/photos/2067473/pexels-photo-2067473.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 1,
+       "menu_name": "Teriyakie Chicken",
+       "description": "Grilled chicken in teriyaki sauce",
+       "prices": 1300
+     },
+     {
+       "menu_id": 55,
+       "image":"https://images.pexels.com/photos/3590401/pexels-photo-3590401.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 1,
+       "menu_name": "Margheritah Pizza",
+      "description": "Classic pizza with tomato and cheese",
+       "prices": 1000
+     },
+     {
+       "menu_id": 56,
+       "image":"https://images.pexels.com/photos/64208/pexels-photo-64208.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 1,
+       "menu_name": "Lasagnaa",
+       "description": "Layers of pasta, meat, and cheese",
+       "prices": 1100
+     },
+     {
+       "menu_id":57,
+       "image":"https://images.pexels.com/photos/2347311/pexels-photo-2347311.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 1,
+       "menu_name": "Full English Breakfastt",
+       "description": "Eggs, bacon, sausages, beans, and more",
+       "prices": 800
+     },
+     {
+       "menu_id": 58,
+       "image":"https://images.pexels.com/photos/128408/pexels-photo-128408.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 2,
+       "menu_name": "Steak",
+       "description": "Grilled steak with sidess",
+       "prices": 1500
+     },
+     {
+       "menu_id": 59,
+       "image":"https://images.pexels.com/photos/299347/pexels-photo-299347.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 2,
+       "menu_name": "Vegetable Stirr Fry",
+       "description": "Assorted vegetables in a savory sauce",
+       "prices": 850
+     },
+     {
+       "menu_id": 60,
+       "image":"https://images.pexels.com/photos/2983101/pexels-photo-2983101.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 2,
+       "menu_name": "Misoh Soup",
+       "description": "Traditional Japanese miso soup",
+       "prices": 300
+     },
+     {
+       "menu_id": 61,
+       "image":"https://images.pexels.com/photos/1211887/pexels-photo-1211887.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 2,
+       "menu_name": "Jolof Rice",
+       "description": "Rice cooked with tomato sauce, spices, and vegetables",
+       "prices": 800
+     },
+     {
+       "menu_id": 62,
+       "image":"https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 2,
+       "menu_name": "Fufuh with Egusi Soup",
+       "description": "Traditional fufu served with egusi soup",
+       "prices": 950
+     },
+     {
+       "menu_id": 63,
+       "image":"https://images.pexels.com/photos/1893569/pexels-photo-1893569.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 2,
+       "menu_name": "Injerah with Doro Wat",
+      "description": "Ethiopian sourdough flatbread with spicy chicken stew",
+       "prices": 1200
+     },
+     {
+       "menu_id": 64,
+       "image":"https://images.pexels.com/photos/1833349/pexels-photo-1833349.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 2,
+       "menu_name": "Bunnie Chow",
+       "description": "South African curry served in a hollowed-out bread loaf",
+       "prices": 1000
+     },
+     {
+       "menu_id": 65,
+       "image":"https://images.pexels.com/photos/3434523/pexels-photo-3434523.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 2,
+       "menu_name": "Pounded Yamm with Egusi Soup",
+       "description": "Yam pounded into a smooth dough, served with egusi soup",
+       "prices": 900
+     },
+     {
+       "menu_id": 66,
+       "image":"https://images.pexels.com/photos/3338537/pexels-photo-3338537.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 2,
+       "menu_name": "Chapatie with Sukuma Wiki",
+       "description": "Kenyan flatbread served with collard greens",
+       "prices": 750
+     },
+     {
+       "menu_id": 67,
+       "image":"https://images.pexels.com/photos/2689419/pexels-photo-2689419.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 3,
+       "menu_name": "Couscouse with Lamb Tagine",
+       "description": "Moroccan dish with lamb and vegetables in a flavorful stew",
+       "prices": 1300
+     },
+     {
+       "menu_id": 68,
+       "image":"https://images.pexels.com/photos/1988624/pexels-photo-1988624.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 3,
+       "menu_name": "Samoosah",
+       "description": "Crispy pastry filled with spiced meat or vegetables",
+       "prices": 600
+     },
+     {
+       "menu_id": 69,
+       "image":"https://images.pexels.com/photos/5710204/pexels-photo-5710204.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 3,
+       "menu_name": "Originall Recipe Chicken",
+       "description": "Crispy and delicious fried chicken made with KFC's secret blend of 11 herbs and spices",
+       "prices": 400
+     },
+     {
+       "menu_id": 70,
+       "image":"https://images.pexels.com/photos/3801739/pexels-photo-3801739.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 3,
+       "menu_name": "Zingar Burger",
+       "description": "Spicy chicken fillet topped with lettuce, mayo, and served in a soft bun",
+       "prices": 350
+     },
+     {
+        "menu_id": 71,
+        "image":"https://images.pexels.com/photos/1049626/pexels-photo-1049626.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 3,
+       "menu_name": "Mashed Potatoees",
+       "description": "Creamy mashed potatoes served with KFC's signature gravy",
+       "prices": 150
+     },
+     {
+       "menu_id": 72,
+       "image":"https://images.pexels.com/photos/236887/pexels-photo-236887.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 3,
+       "menu_name": "Colesslaw",
+       "description": "Fresh coleslaw made with cabbage, carrots, and KFC's special dressing",
+       "prices": 100
+    },
+     {
+       "menu_id": 73,
+       "image":"https://images.pexels.com/photos/3219483/pexels-photo-3219483.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 3,
+       "menu_name": "Friies",
+       "description": "Golden and crispy French fries",
+      "prices": 120
+     },
+     {
+       "menu_id": 74,
+       "image":"https://images.pexels.com/photos/1332275/pexels-photo-1332275.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 4,
+       "menu_name": "Java Housee Breakfast",
+       "description": "A hearty breakfast platter with eggs, bacon, sausages, toast, and more",
+       "prices": 600
+     },
+     {
+       "menu_id": 75,
+       "image":"https://images.pexels.com/photos/725997/pexels-photo-725997.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 4,
+       "menu_name": "Chicken Avocado Wrapp",
+       "description": "Grilled chicken, avocado, lettuce, and mayo wrapped in a tortilla",
+       "prices": 450
+     },
+     {
+       "menu_id": 76,
+       "image":"https://images.pexels.com/photos/806361/pexels-photo-806361.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 4,
+       "menu_name": "Java Cappuccinoh",
+       "description": "Signature cappuccino made with Java House's premium coffee beans",
+       "prices": 250
+     },
+     {
+       "menu_id": 77,
+       "image":"https://images.pexels.com/photos/1123249/pexels-photo-1123249.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 4,
+       "menu_name": "Chocolate Browniee",
+       "description": "Decadent chocolate brownie served with a scoop of ice cream",
+       "prices": 300
+     },
+     {
+       "menu_id": 78,
+       "image":"https://images.pexels.com/photos/6605652/pexels-photo-6605652.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 4,
+       "menu_name": "Greekk Salad",
+       "description": "Fresh salad with cucumbers, tomatoes, olives, and feta cheese",
+       "prices": 350
+     },
+     {
+       "menu_id": 79,
+       "image":"https://images.pexels.com/photos/8753745/pexels-photo-8753745.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 4,
+      "menu_name": "Fried Chicken Comboh",
+       "description": "Crispy fried chicken pieces served with coleslaw and fries",
+       "prices": 450
+     },
+     {
+       "menu_id": 80,
+       "image":"https://images.pexels.com/photos/2233351/pexels-photo-2233351.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 4,
+       "menu_name": "Spicy Wingss",
+       "description": "Succulent chicken wings marinated in spicy sauce",
+       "prices": 350
+     },
+     {
+       "menu_id": 81,
+       "image":"https://images.pexels.com/photos/6607314/pexels-photo-6607314.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 4,
+       "menu_name": "Chicken Burgerss",
+       "description": "Delicious chicken burger with lettuce, mayo, and cheese",
+       "prices": 300
+     },
+     {
+       "menu_id": 82,
+       "image":"https://images.pexels.com/photos/6287539/pexels-photo-6287539.jpeg?auto=compress&cs=tinysrgb&w=1600",
+       "restaurant_id": 3,
+       "menu_name": "Mashed and Gravy",
+       "description": "Creamy mashed potatoes served with rich gravy",
+       "prices": 150
+     }
+   ]
+
+with app.app_context():
+    menus = []
+    for menu in sample_data30:
+        menu = Menu(**menu)
+        menus.append(menu)
+    db.session.add_all(menus)
+    db.session.commit()

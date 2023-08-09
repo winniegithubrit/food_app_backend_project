@@ -81,6 +81,7 @@ class MenuSchema(Schema):
     menu_name = fields.String()
     description = fields.String()
     prices = fields.Integer()
+    image = fields.String()
     
 class RestaurantSchema(Schema):
     restaurant_id = fields.Integer()

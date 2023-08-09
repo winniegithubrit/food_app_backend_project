@@ -26,7 +26,6 @@ class Location(db.Model):
     owner_id = db.Column(db.Integer, ForeignKey('owner.owner_id'))
     name = db.Column(db.String)
     delivery_fee = db.Column(db.Integer)
-
     restaurant_id = db.Column(db.Integer, ForeignKey('restaurant.restaurant_id'))
     restaurant = db.relationship('Restaurant', backref='location')
 
@@ -42,7 +41,8 @@ class Order(db.Model):
     payment_method = db.Column(db.String)
 
     deliveries = db.relationship('Deliveries', backref='order')
-    menu = db.relationship('Menu', backref='orders')
+    # menu = db.relationship('Menu', backref='orders')
+    
     # customer = db.relationship('Customers', backref='orders')
 
 class Driver(db.Model):
@@ -140,6 +140,11 @@ class Menu(db.Model):
     menu_name = db.Column(db.String)
     description = db.Column(db.String)
     prices = db.Column(db.Integer)
+    description = db.Column(db.String)
+    image = db.Column(db.String)
+    
+    orders = db.relationship("Order", backref = "menu")
+   
     
     # order_items = db.relationship('Order', backref='menu')
   

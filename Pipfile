@@ -4,6 +4,23 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+flask-sqlalchemy = "*"
+pyjwt = "*"
+requests = "*"
+flask = "*"
+flask-cors = "*"
+flask-migrate = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
 
 [dev-packages]
 

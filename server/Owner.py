@@ -74,7 +74,7 @@ def delete_owner(owner_id):
 # DELIVERIES
 
 
-@owners.route('/delieries', methods=['GET'])
+@owners.route('/deliveries', methods=['GET'])
 def get_all_deliveries():
     deliveries_list = Deliveries.query.all()
     deliveries_schema = DeliveriesSchema(many=True)

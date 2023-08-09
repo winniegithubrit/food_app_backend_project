@@ -3,8 +3,14 @@ from flask_marshmallow import Marshmallow
 from models import User,db,Customers,Driver,Admin,SuperAdmin,Favourites
 from schemas import *
 
+
 user = Blueprint("User", __name__)
 ma = Marshmallow(user)
+
+
+
+
+
 
 @user.route('/')
 def index():
@@ -14,7 +20,7 @@ def index():
 @user.route('/customers', methods=['GET'])
 def get_all_customers():
     customers = Customers.query.all()
-    customer_schema = CustomerSchema(many=True)
+    customer_schema = CustomersSchema(many=True)
     customer_data = customer_schema.dump(customers)
     return jsonify(customer_data)
 
@@ -23,7 +29,7 @@ def get_customers_by_id(customer_id):
     customer = Customers.query.get(customer_id)
     if customer is None:
         return jsonify({'message': 'Customer not found'}), 404
-    customer_schema = CustomerSchema()
+    customer_schema = CustomersSchema()
     customer_data = customer_schema.dump(customer)
     return jsonify(customer_data)
   
@@ -32,7 +38,7 @@ def get_customers_by_id(customer_id):
 def create_customers():
     data = request.get_json()
 
-    customer_schema = CustomerSchema()
+    customer_schema = CustomersSchema()
     customers = customer_schema.load(data)
 
     new_customer = Customers(**customers)
@@ -52,7 +58,7 @@ def update_customer(customer_id):
     if not customers:
         return jsonify({'message': "The customer you are looking for is not found"}), 404
 
-    customer_schema = CustomerSchema()
+    customer_schema = CustomersSchema()
     updated_customer_data = customer_schema.load(data, partial=True)
 
     for key, value in updated_customer_data.get('customers', {}).items():

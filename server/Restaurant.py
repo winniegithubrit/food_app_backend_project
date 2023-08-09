@@ -247,7 +247,31 @@ def delete_payment(payment_id):
 
 
 
+restaurant_schema = RestaurantSchema()
+restaurants_schema = RestaurantSchema(many=True)
 
+@restaurants.route('/search', methods=['GET'])
+def search_restaurants():
+    query_params = request.args.to_dict()
+
+    filtered_query = Restaurant.query
+
+    if 'q' in query_params:
+        filtered_query = filtered_query.filter(Restaurant.restaurant_name.ilike(f"%{query_params['q']}%"))
+
+    if 'rating' in query_params:
+        filtered_query = filtered_query.filter(Restaurant.rating >= float(query_params['rating']))
+
+    if 'popularity' in query_params:
+        popularity_filter = int(query_params['popularity'])
+        filtered_query = filtered_query.join(Order).group_by(Restaurant).having(db.func.count(Order.order_id) >= popularity_filter)
+
+    search_results = filtered_query.all()
+
+    # Serialize the results using the schema
+    serialized_results = restaurants_schema.dump(search_results)
+
+    return jsonify(serialized_results)
 
 
 

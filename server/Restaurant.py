@@ -262,10 +262,6 @@ def search_restaurants():
     if 'rating' in query_params:
         filtered_query = filtered_query.filter(Restaurant.rating >= float(query_params['rating']))
 
-    if 'popularity' in query_params:
-        popularity_filter = int(query_params['popularity'])
-        filtered_query = filtered_query.join(Order).group_by(Restaurant).having(db.func.count(Order.order_id) >= popularity_filter)
-
     search_results = filtered_query.all()
 
     # Serialize the results using the schema

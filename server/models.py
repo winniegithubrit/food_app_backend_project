@@ -3,7 +3,7 @@ from sqlalchemy import ForeignKey
 from datetime import datetime
 from sqlalchemy.orm import validates
 from schemas import *
-
+from werkzeug.security import  check_password_hash
 
 db = SQLAlchemy()
 
@@ -148,9 +148,12 @@ class User(db.Model):
     user_name = db.Column(db.String)
     email = db.Column(db.String)
     password = db.Column(db.String)
+    confirm_password = db.Column(db.String)
     type = db.Column(db.Boolean, default=False)  
     blocked = db.Column(db.String)
     activity = db.Column(db.String)
+    
+    
 
 class Favourites(db.Model):
     __tablename__ ='favourite'
@@ -184,4 +187,8 @@ class SuperAdmin(db.Model):
             raise ValueError('User password is not valid, please try again')
         return password
 
-
+    # def confirm_password(self,password):
+    #     return check_password_hash(self.password,password)
+    
+    # def __repr__(self):
+    #     return f'<User:{self.username}'

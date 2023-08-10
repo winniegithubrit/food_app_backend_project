@@ -3,22 +3,19 @@ from flask import Flask, request, jsonify, make_response,redirect, url_for,Bluep
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity,JWTManager,jwt_required
 import jwt
 from functools import wraps
-from flask_marshmallow import Marshmallow
 import uuid
+from flask_sqlalchemy import SQLAlchemy
+from models import db,User
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from werkzeug.security import generate_password_hash, check_password_hash
-from User import *
 
-main2 = Blueprint("main2",__name__)
-ma = Marshmallow()
+
 
 app = Flask(__name__)
-ma.init_app(app)
+main2=Blueprint("main2", __name__)
 
-app.config['SECRET_KEY'] = b'\x06\xf5\xb5\xe6\xf7\x1c\xbd\r\xc5e\xef\xb2\xf1\xcb`\xd8'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://steve:gzvhtFOUedOgHo9WaG2R5QCfcsXABXI8@dpg-cj5lg1acn0vc73d98li0-a.oregon-postgres.render.com/dbfoodapp'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 
 
 
@@ -29,7 +26,7 @@ ma = Marshmallow(app)
 
 class UserSchema(ma.Schema):
     class Meta:
-        fields = ('user_id', 'username', 'email', 'password', 'user_role', 'blocked', 'activity')
+        fields = ('user_id', 'user_name', 'email', 'password','confirm_password', 'type', 'blocked', 'activity')
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
@@ -51,59 +48,56 @@ def token_required(f):
         return f(*args, **kwargs)
     return decorated
 
-@app.route('/superadmin/<token>')
+@main2.route('/superadmin/<token>')
 @jwt_required(optional=True)
 def superadmin(token):
     return jsonify(token=f"superadmin : {token}")
 
-@app.route('/admin/<token>')
+@main2.route('/admin/<token>')
 @jwt_required(optional=True)
 def admin(token):
     return jsonify(token=f"admin : {token}")
 
-@app.route('/customer/<token>')
+@main2.route('/customer/<token>')
 @jwt_required(optional=True)
 def customer(token):
     return jsonify(token=f"student : {token}")
 
-@app.route('/driver/<token>')
+@main2.route('/driver/<token>')
 @jwt_required(optional=True)
 def driver(token):
     return jsonify(token=f"driver : {token}")
 
-@app.route('/orders')
+@main2.route('/orders')
 @jwt_required(optional=True)
 def orders():
     details = get_jwt()
-    if details["user_role"]!='driver':
+    if details["type"]!='driver':
         return redirect(url_for("guest"))
     return jsonify(detail="info")
 
-@app.route('/guest')
+@main2.route('/guest')
 @jwt_required()
 def guest():
     details = get_jwt()
-    return jsonify(detail=f"welcome {details['username']}")
-    
-@app.route('/login', methods=['POST','GET'])
+    return jsonify(detail=f"welcome {details['user_name']}")
+@main2.route('/login', methods=['POST'])
 def login():
-    if request.method == 'POST':
-        email = request.json.get('email',None)
-        password = request.json.get('password',None)
-        user = User.query.filter_by(email=email).first()
-        if user:
-            if user.confirm_password(password):
-                metadata = {
-                   "user_role":user.user_role,
-                   "username":user.username
-                }
-                token = create_access_token(identity=user.user_id, additional_claims=metadata)
-                return redirect(url_for(f'{user.user_role}',token=token))
-                # return jsonify(token=token)
-            return jsonify(detail="password Incorrect"),401
-        return jsonify(detail="User not logged in"),401
+    data = request.get_json()
 
-@app.route('/user', methods=['GET'])
+    email = data['email']
+    password = data['password']
+
+    user = User.query.filter_by(email=email).first()
+
+    if user and check_password_hash(user.password, password):
+        # Successful login
+        return jsonify({'message': 'Login successful'}), 200
+    else:
+        return jsonify({'message': 'Invalid email or password'}), 401
+
+
+@main2.route('/user', methods=['GET'])
 def get_all_users():
      users = User.query.all()
 
@@ -112,17 +106,18 @@ def get_all_users():
      for user in users:
         user_data = {}
         user_data['user_id'] = user.user_id
-        user_data['username'] = user.username
+        user_data['user_name'] = user.user_name
         user_data['email'] = user.email
         user_data['password'] = user.password
-        user_data['user_role'] = user.user_role
+        user_data['confirm_password'] = user.confirm_password
+        user_data['type'] = user.type
         user_data['blocked'] = user.blocked
         user_data['activity'] = user.activity
         output.append(user_data)
      return jsonify({'users': output})
 
  
-@app.route('/user/<user_id>', methods=['GET'])
+@main2.route('/user/<user_id>', methods=['GET'])
 def get_one_users(user_id):
 
     user = User.query.filter_by(user_id=user_id).first()
@@ -132,29 +127,30 @@ def get_one_users(user_id):
     
     user_data = {}
     user_data['user_id'] = user.user_id
-    user_data['username'] = user.username
+    user_data['user_name'] = user.user_name
     user_data['email'] = user.email
     user_data['password'] = user.password
-    user_data['user_role'] = user.user_role
+    user_data['confirm_password'] = user.confirm_password
+    user_data['type'] = user.type
     user_data['blocked'] = user.blocked
     user_data['activity'] = user.activity
     return jsonify({'users': user_data})
     # pass
  
-@app.route('/user', methods=['POST'])
-def user():
+@main2.route('/register', methods=['POST'])
+def register():
     data = request.get_json()
 
     hashed_password = generate_password_hash(data['password'], method='scrypt')
 
-    new_user = User(username=data['username'],password=hashed_password, email=data['email'],user_role=data['user_role'],blocked=False,activity=False)
+    new_user = User(user_name=data['user_name'],password=hashed_password, email=data['email'],type=data['type'],blocked=False,activity=False)
     db.session.add(new_user)
     db.session.commit()
     
     return ({'message':'Welcome user'})
 
-@app.route('/user/<user_id>', methods=['PATCH'])
-def promote_user(user_id):
+@main2.route('/user/<user_id>', methods=['PATCH'])
+def user(user_id):
     user = User.query.filter_by(user_id=user_id).first()
 
     if not user:
@@ -165,7 +161,7 @@ def promote_user(user_id):
 
     return jsonify({'message': 'User promoted successfully'})
 
-@app.route('/user/<user_id>', methods=['DELETE'])
+@main2.route('/user/<user_id>', methods=['DELETE'])
 def delete_user(user_id):
     user = User.query.filter_by(user_id=user_id).first()
 
@@ -177,18 +173,23 @@ def delete_user(user_id):
     
     return jsonify({'message': 'User has been deleted'})
 
-@app.route('/cart/<int:product_id>', methods=['POST'])
-def add_to_cart(product_id):
+# @user.route('/search', methods=['POST','GET'])
+# def search():
+#     user1 = User.query.filter().all()
 
-    product = Product.query.filter(Product.id == product_id)
-    cart_item = CartItem(product=product)
-    db.session.add(cart_item)
-    db.session.commit()
+    
+#     if user1 is None:
+#         return jsonify({'message': 'User not found'})
+    
+#     return jsonify({'message': f'{user=user1.user_name}'})
+#     query = request.args.get("query")
+#     users = user.query.filter(users.title.like("%"+query+"%")).all()
+#     return jsonify({'message': f'{users}'})
 
-    return jsonify({'message': 'User has been deleted'})
-
-    # return render_tempate('home.html', product=products)
-# if __name__ == '__main__':
+    # pass
+   
+# if __name__ == '_main_':
+#     # app.register_blueprint(user)
 #     # with app.app_context():
 #     #     db.create_all()
-#     app.run(port=5856)
+#     app.run(debug=True)

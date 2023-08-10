@@ -6,6 +6,7 @@ from datetime import datetime
 from flask_marshmallow import Marshmallow
 from models import db
 from schemas import *
+from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, JWTManager, jwt_required
 from main2 import main2
 from mpesa import mpesa
 from Stripe import stripe
@@ -32,7 +33,7 @@ app.register_blueprint(main2)
 app.register_blueprint(stripe)
 
 
-
+app.config['SECRET_KEY'] = b'\x06\xf5\xb5\xe6\xf7\x1c\xbd\r\xc5e\xef\xb2\xf1\xcb`\xd8'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://steve:gzvhtFOUedOgHo9WaG2R5QCfcsXABXI8@dpg-cj5lg1acn0vc73d98li0-a.oregon-postgres.render.com/dbfoodapp'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -41,6 +42,7 @@ migrate = Migrate(app, db)
 CORS(app,origins='http://localhost:3000')
 db.init_app(app)
 ma = Marshmallow(app)
+jwt=JWTManager(app)
 
 
 @app.route('/')

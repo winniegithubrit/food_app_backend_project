@@ -78,7 +78,6 @@ class Customers(db.Model):
     __tablename__ = 'customers'
     customer_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-
     user_name = db.Column(db.String)
     password = db.Column(db.String)
     phone_number = db.Column(db.String)
@@ -187,8 +186,4 @@ class SuperAdmin(db.Model):
             raise ValueError('User password is not valid, please try again')
         return password
 
-    # def confirm_password(self,password):
-    #     return check_password_hash(self.password,password)
-    
-    # def __repr__(self):
-    #     return f'<User:{self.username}'
+   

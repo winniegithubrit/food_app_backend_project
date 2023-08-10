@@ -21,13 +21,14 @@ def index():
     return "This is the Products page"
 
 # RESTAURANTS
+# get all restaurant route
 @restaurants.route('/restaurants', methods=['GET'])
 def get_all_restaurants():
     restaurants_list = Restaurant.query.all()
     restaurant_schema = RestaurantSchema(many=True)
     restaurant_data = restaurant_schema.dump(restaurants_list)  
     return jsonify(restaurant_data)
-  
+#   get restaurant by id route
 @restaurants.route('/restaurants/<int:restaurant_id>', methods=['GET'])
 def get_restaurant(restaurant_id):
     restaurant = Restaurant.query.filter_by(restaurant_id=restaurant_id).first()
@@ -37,7 +38,7 @@ def get_restaurant(restaurant_id):
     restaurant_schema = RestaurantSchema()
     restaurant_data = restaurant_schema.dump(restaurant)
     return jsonify(restaurant_data)
-  
+#   creating  A new restaurant route
 @restaurants.route('/restaurants', methods=['POST'])
 def create_restauarants():
     data = request.get_json()
@@ -48,7 +49,7 @@ def create_restauarants():
     restaurant_data = RestaurantSchema().dump(new_restaurant)
     return make_response(jsonify(restaurant_data), 201)
 
-
+# updating some details of the restaurant route
 @restaurants.route('/restaurants/<int:restaurant_id>', methods=['PATCH'])
 def update_restaurant_details(restaurant_id):
     restaurant = Restaurant.query.filter_by(restaurant_id = restaurant_id).first()
@@ -62,7 +63,7 @@ def update_restaurant_details(restaurant_id):
     restaurant_data = RestaurantSchema().dump(restaurant)
     return make_response(jsonify(restaurant_data))
 
-
+# delete route to delete a restaurant
 @restaurants.route('/restaurants/<int:restaurant_id>', methods=['DELETE'])
 def delete_restaurant(restaurant_id):
     restaurant = Restaurant.query.filter_by(restaurant_id=restaurant_id).first()
@@ -274,36 +275,6 @@ def search_restaurants():
     return jsonify(serialized_results)
 
 
-# # Adding to Cart with flask using the order and menu models
-# @app.route('/add_to_cart', methods=['POST'])
-# @jwt_required() 
-# def add_to_cart():
-#     data = request.json
-#     menu_id = data.get('menu_id')
-#     total_price = data.get('total_price')
-#     address = data.get('address')
-#     payment_method = data.get('payment_method')
-
-#     user_id = get_jwt_identity() 
-
-#     menu = Menu.query.get(menu_id)
-
-#     if not menu:
-#         return jsonify({"message": "Menu Item not found"}), 404
-
-#     # Create an order and associate it with the menu and user
-#     order = Order(
-#         menu_id=menu_id,
-#         total_price=total_price,
-#         order_date_and_time=datetime.utcnow(),
-#         address=address,
-#         payment_method=payment_method,
-#         user_id=user_id
-#     )
-#     db.session.add(order)
-#     db.session.commit()
-
-#     return jsonify({"message": "Order created"}), 200
 
 
 

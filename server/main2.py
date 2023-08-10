@@ -81,6 +81,7 @@ def orders():
 def guest():
     details = get_jwt()
     return jsonify(detail=f"welcome {details['user_name']}")
+
 @main2.route('/login', methods=['POST'])
 def login():
     data = request.get_json()

@@ -1,4 +1,4 @@
-
+from flask_jwt_extended import JWTManager
 from flask import Flask, jsonify,request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -11,7 +11,7 @@ from main2 import main2
 from mpesa import mpesa
 from Stripe import stripe
 from werkzeug.wrappers import Response 
-
+# from flask import jwt_
 
 
 from Restaurant import restaurants
@@ -32,7 +32,7 @@ app.register_blueprint(mpesa)
 app.register_blueprint(main2)
 app.register_blueprint(stripe)
 
-
+jwt = JWTManager(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://steve:gzvhtFOUedOgHo9WaG2R5QCfcsXABXI8@dpg-cj5lg1acn0vc73d98li0-a.oregon-postgres.render.com/dbfoodapp'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -44,14 +44,14 @@ CORS(app)
 db.init_app(app)
 ma = Marshmallow(app)
 
-@app.before_request
-def before_request():
-    if request.method == 'OPTIONS':
-        response = Response()
-        response.headers["Access-Control-Allow-Origin"] = "http://localhost:3002"
-        response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type"
-        response.headers["Access-Control-Allow-Methods"] = "POST"
-        return response
+# @app.before_request
+# def before_request():
+#     if request.method == 'OPTIONS':
+#         response = Response()
+#         response.headers["Access-Control-Allow-Origin"] = "http://localhost:3002"
+#         response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type"
+#         response.headers["Access-Control-Allow-Methods"] = "POST"
+#         return response
 
 
 # Handle CORS preflight requests

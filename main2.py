@@ -1,31 +1,33 @@
 #app.py
 from flask import Flask, request, jsonify, make_response,redirect, url_for
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity,JWTManager,jwt_required
-import jwt
+# import jwt
 from functools import wraps
 import uuid
 from flask_sqlalchemy import SQLAlchemy
-# from model import db,User
+from model import db,User
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from werkzeug.security import generate_password_hash, check_password_hash
+from app import jwt,ma
 
-app = Flask(__name__)
 
-app.config['SECRET_KEY'] = b'\x06\xf5\xb5\xe6\xf7\x1c\xbd\r\xc5e\xef\xb2\xf1\xcb`\xd8'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://steve:gzvhtFOUedOgHo9WaG2R5QCfcsXABXI8@dpg-cj5lg1acn0vc73d98li0-a.oregon-postgres.render.com/dbfoodapp'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# app = Flask(__name__)
 
-db.init_app(app)
+# app.config['SECRET_KEY'] = b'\x06\xf5\xb5\xe6\xf7\x1c\xbd\r\xc5e\xef\xb2\xf1\xcb`\xd8'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://steve:gzvhtFOUedOgHo9WaG2R5QCfcsXABXI8@dpg-cj5lg1acn0vc73d98li0-a.oregon-postgres.render.com/dbfoodapp'
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-jwt=JWTManager(app)
+# db.init_app(app)
 
-migrate = Migrate(app, db)
-ma = Marshmallow(app)
+# jwt=JWTManager(app)
+
+# migrate = Migrate(app, db)
+# ma = Marshmallow(app)
 
 class UserSchema(ma.Schema):
     class Meta:
-        fields = ('user_id', 'username', 'email', 'password', 'user_role', 'blocked', 'activity')
+        fields = ('user_id', 'username', 'email', 'password', 'type', 'blocked', 'activity')
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)

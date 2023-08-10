@@ -1,13 +1,13 @@
 
-from flask import Flask, jsonify,request
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask
+# from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_migrate import Migrate
 from datetime import datetime
 from flask_marshmallow import Marshmallow
 from models import db
 from schemas import *
-from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, JWTManager, jwt_required
+from flask_jwt_extended import JWTManager
 from main2 import main2
 from mpesa import mpesa
 from Stripe import stripe

@@ -1,11 +1,10 @@
 #app.py
-from flask import Flask, request, jsonify, make_response,redirect, url_for,Blueprint
-from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity,JWTManager,jwt_required
-import jwt
+from flask import Flask, request, jsonify,redirect, url_for,Blueprint
+from flask_jwt_extended import JWTManager,create_access_token
 from functools import wraps
 import uuid
-from flask_sqlalchemy import SQLAlchemy
-from models import db,User
+# from flask_sqlalchemy import SQLAlchemy
+from models import db,User,Owner,Customers
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -31,56 +30,56 @@ class UserSchema(ma.Schema):
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
 
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = request.args.get('token')
+# def token_required(f):
+#     @wraps(f)
+#     def decorated(*args, **kwargs):
+#         token = request.args.get('token')
 
-        if not token:
-            return({"message" : "Token is missing"})
+#         if not token:
+#             return({"message" : "Token is missing"})
 
-        try:
-            data = jwt.decode(token,app.config['SECRET_KEY'])
+#         try:
+#             data = jwt.decode(token,app.config['SECRET_KEY'])
             
-        except:
-            return ({"message": "Invalid token"})
+#         except:
+#             return ({"message": "Invalid token"})
 
-        return f(*args, **kwargs)
-    return decorated
+#         return f(*args, **kwargs)
+#     return decorated
 
-@main2.route('/superadmin/<token>')
-@jwt_required(optional=True)
-def superadmin(token):
-    return jsonify(token=f"superadmin : {token}")
+# @main2.route('/superadmin/<token>')
+# @jwt_required(optional=True)
+# def superadmin(token):
+#     return jsonify(token=f"superadmin : {token}")
 
-@main2.route('/admin/<token>')
-@jwt_required(optional=True)
-def admin(token):
-    return jsonify(token=f"admin : {token}")
+# @main2.route('/admin/<token>')
+# @jwt_required(optional=True)
+# def admin(token):
+#     return jsonify(token=f"admin : {token}")
 
-@main2.route('/customer/<token>')
-@jwt_required(optional=True)
-def customer(token):
-    return jsonify(token=f"student : {token}")
+# @main2.route('/customer/<token>')
+# @jwt_required(optional=True)
+# def customer(token):
+#     return jsonify(token=f"student : {token}")
 
-@main2.route('/driver/<token>')
-@jwt_required(optional=True)
-def driver(token):
-    return jsonify(token=f"driver : {token}")
+# @main2.route('/driver/<token>')
+# @jwt_required(optional=True)
+# def driver(token):
+#     return jsonify(token=f"driver : {token}")
 
-@main2.route('/orders')
-@jwt_required(optional=True)
-def orders():
-    details = get_jwt()
-    if details["type"]!='driver':
-        return redirect(url_for("guest"))
-    return jsonify(detail="info")
+# @main2.route('/orders')
+# @jwt_required(optional=True)
+# def orders():
+#     details = get_jwt()
+#     if details["type"]!='driver':
+#         return redirect(url_for("guest"))
+#     return jsonify(detail="info")
 
-@main2.route('/guest')
-@jwt_required()
-def guest():
-    details = get_jwt()
-    return jsonify(detail=f"welcome {details['user_name']}")
+# @main2.route('/guest')
+# @jwt_required()
+# def guest():
+#     details = get_jwt()
+#     return jsonify(detail=f"welcome {details['user_name']}")
 
 @main2.route('/login', methods=['POST'])
 def login():
@@ -174,23 +173,73 @@ def delete_user(user_id):
     
     return jsonify({'message': 'User has been deleted'})
 
-# @user.route('/search', methods=['POST','GET'])
-# def search():
-#     user1 = User.query.filter().all()
+# OWNERS AUTHENTICATION
 
-    
-#     if user1 is None:
-#         return jsonify({'message': 'User not found'})
-    
-#     return jsonify({'message': f'{user=user1.user_name}'})
-#     query = request.args.get("query")
-#     users = user.query.filter(users.title.like("%"+query+"%")).all()
-#     return jsonify({'message': f'{users}'})
+@main2.route('/owner/register', methods=['POST'])
+def register_owner():
+    data = request.get_json()
 
-    # pass
-   
-# if __name__ == '_main_':
-#     # app.register_blueprint(user)
-#     # with app.app_context():
-#     #     db.create_all()
-#     app.run(debug=True)
+    hashed_password = generate_password_hash(data['password'], method='scrypt')
+
+    new_owner = Owner(name=data['name'], email=data['email'], password=hashed_password, image=data.get('image'))
+    db.session.add(new_owner)
+    db.session.commit()
+
+    return jsonify({'message': 'Owner registered successfully'}), 201
+
+@main2.route('/owner/login', methods=['POST'])
+def login_owner():
+    data = request.get_json()
+
+    email = data['email']
+    password = data['password']
+
+    owner = Owner.query.filter_by(email=email).first()
+
+    if owner and check_password_hash(owner.password, password):
+        access_token = create_access_token(identity=owner.owner_id)
+        response = jsonify({'message': 'Login successful'})
+        response.set_cookie('access_token_cookie', access_token, httponly=True)
+        return response, 200
+    else:
+        return jsonify({'message': 'Invalid email or password'}), 401
+
+
+
+# customer authentication
+
+@main2.route('/customers/register', methods=['POST'])
+def register_customer():
+    data = request.get_json()
+
+    hashed_password = generate_password_hash(data['password'], method='scrypt')
+
+    new_customer = Customers(
+        user_name=data['user_name'],
+        password=hashed_password,
+        phone_number=data['phone_number'],
+        image=data['image']
+    )
+    db.session.add(new_customer)
+    db.session.commit()
+
+    return jsonify({'message': 'Customer registered successfully'}), 201
+
+
+@main2.route('/customers/login', methods=['POST'])
+def login_customer():
+    data = request.get_json()
+
+    user_name = data['user_name']
+    password = data['password']
+
+    customer = Customers.query.filter_by(user_name=user_name).first()
+
+    if customer and check_password_hash(customer.password, password):
+        access_token = create_access_token(identity=customer.customer_id)
+        response = jsonify({'message': 'Login successful'})
+        response.set_cookie('access_token_cookie', access_token, httponly=True)
+        return response, 200
+    else:
+        return jsonify({'message': 'Invalid user name or password'}), 401
+

@@ -34,16 +34,13 @@ class Order(db.Model):
     __tablename__ = 'order'
     order_id = db.Column(db.Integer, primary_key=True)
     menu_id = db.Column(db.Integer, ForeignKey('menu.menu_id'))
-    # customer_id = db.Column(db.Integer, db.ForeignKey('customer.customer_id'))
     total_price = db.Column(db.Integer)
     order_date_and_time = db.Column(db.DateTime)
     address = db.Column(db.String)
     payment_method = db.Column(db.String)
 
     deliveries = db.relationship('Deliveries', backref='order')
-    # menu = db.relationship('Menu', backref='orders')
-    
-    # customer = db.relationship('Customers', backref='orders')
+
 
 class Driver(db.Model):
     __tablename__ = 'driver'
@@ -87,7 +84,6 @@ class Customers(db.Model):
     phone_number = db.Column(db.String)
     image = db.Column(db.String)
 
-    # orders = db.relationship('Order', backref='customer')
     customerReviews = db.relationship('CustomerReviews', backref='customer')
     user = db.relationship('User', backref='customer', uselist=False)
 
@@ -144,9 +140,6 @@ class Menu(db.Model):
     image = db.Column(db.String)
     
     orders = db.relationship("Order", backref = "menu")
-   
-    
-    # order_items = db.relationship('Order', backref='menu')
   
 
 class User(db.Model):

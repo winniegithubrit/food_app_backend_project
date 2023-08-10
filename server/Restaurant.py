@@ -1,6 +1,9 @@
 from flask import Blueprint, jsonify,Flask,request,make_response
+from datetime import datetime
 from flask_marshmallow import Marshmallow
 from models import Restaurant,db,Menu,Order,Payment
+
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 
 from schemas import *
 
@@ -11,6 +14,7 @@ ma = Marshmallow()
 
 app = Flask(__name__)
 ma.init_app(app)
+jwt = JWTManager(app)
 
 @restaurants.route('/')
 def index():
@@ -264,10 +268,44 @@ def search_restaurants():
 
     search_results = filtered_query.all()
 
-    # Serialize the results using the schema
+    # Serializing the results using the schema
     serialized_results = restaurants_schema.dump(search_results)
 
     return jsonify(serialized_results)
+
+
+# # Adding to Cart with flask using the order and menu models
+# @app.route('/add_to_cart', methods=['POST'])
+# @jwt_required() 
+# def add_to_cart():
+#     data = request.json
+#     menu_id = data.get('menu_id')
+#     total_price = data.get('total_price')
+#     address = data.get('address')
+#     payment_method = data.get('payment_method')
+
+#     user_id = get_jwt_identity() 
+
+#     menu = Menu.query.get(menu_id)
+
+#     if not menu:
+#         return jsonify({"message": "Menu Item not found"}), 404
+
+#     # Create an order and associate it with the menu and user
+#     order = Order(
+#         menu_id=menu_id,
+#         total_price=total_price,
+#         order_date_and_time=datetime.utcnow(),
+#         address=address,
+#         payment_method=payment_method,
+#         user_id=user_id
+#     )
+#     db.session.add(order)
+#     db.session.commit()
+
+#     return jsonify({"message": "Order created"}), 200
+
+
 
 
 

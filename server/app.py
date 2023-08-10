@@ -38,19 +38,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
 migrate = Migrate(app, db)
-CORS(app)
+CORS(app,origins='http://localhost:3000')
 db.init_app(app)
 ma = Marshmallow(app)
-
-
-# Handle CORS preflight requests
-@app.before_request
-def handle_preflight():
-    if request.method == "OPTIONS":
-        response = app.make_default_options_response()
-        response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type"
-        return response
 
 
 @app.route('/')

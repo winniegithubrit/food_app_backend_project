@@ -1,3 +1,4 @@
+
 from flask import Flask, jsonify,request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -9,7 +10,7 @@ from schemas import *
 from main2 import main2
 from mpesa import mpesa
 from Stripe import stripe
-
+from werkzeug.wrappers import Response 
 
 
 
@@ -22,7 +23,7 @@ from Reviews import reviews
 
 
 
-app = Flask(__name__)
+app = Flask(__name__) 
 app.register_blueprint(restaurants)
 app.register_blueprint(user)
 app.register_blueprint(owners)
@@ -39,8 +40,18 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 migrate = Migrate(app, db)
 CORS(app)
+
 db.init_app(app)
 ma = Marshmallow(app)
+
+@app.before_request
+def before_request():
+    if request.method == 'OPTIONS':
+        response = Response()
+        response.headers["Access-Control-Allow-Origin"] = "http://localhost:3002"
+        response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type"
+        response.headers["Access-Control-Allow-Methods"] = "POST"
+        return response
 
 
 # Handle CORS preflight requests

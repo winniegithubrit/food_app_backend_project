@@ -85,23 +85,95 @@ def guest():
     details = get_jwt()
     return jsonify(detail=f"welcome {details['username']}")
     
-@app.route('/login', methods=['POST','GET'])
+# @app.route('/login', methods=['POST','GET'])
+# def login():
+#     if request.method == 'POST':
+#         email = request.json.get('email',None)
+#         password = request.json.get('password',None)
+#         user = User.query.filter_by(email=email).first()
+#         if user:
+#             if user.confirm_password(password):
+#                 metadata = {
+#                    "user_role":user.user_role,
+#                    "username":user.username
+#                 }
+#                 token = create_access_token(identity=user.user_id, additional_claims=metadata)
+#                 return redirect(url_for(f'{user.user_role}',token=token))
+#                 # return jsonify(token=token)
+#             return jsonify(detail="password Incorrect"),401
+#         return jsonify(detail="User not logged in"),401
+
+# Login attempt 
+@app.route('/login', methods=['POST', 'GET'])
 def login():
-    if request.method == 'POST':
-        email = request.json.get('email',None)
-        password = request.json.get('password',None)
-        user = User.query.filter_by(email=email).first()
-        if user:
-            if user.confirm_password(password):
-                metadata = {
-                   "user_role":user.user_role,
-                   "username":user.username
-                }
-                token = create_access_token(identity=user.user_id, additional_claims=metadata)
-                return redirect(url_for(f'{user.user_role}',token=token))
-                # return jsonify(token=token)
-            return jsonify(detail="password Incorrect"),401
-        return jsonify(detail="User not logged in"),401
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    user = User.query.filter_by(email=email).first()
+
+    if user and user.confirm_password(password):
+        access_token = create_access_token(identity=user.user_id)
+        
+        redirect_url = 'our-menu'  # Default redirect URL
+        if user.user_role == 'owner':
+            redirect_url = 'admin-panel'
+        elif user.user_role == 'employee':
+            redirect_url = '/employee-dashboard'
+
+        response_data = {
+            "token": access_token,
+            'user': {
+                'id': user.user_id,
+                'username': user.username,
+                'email': user.email,
+                'user_role': user.user_role,
+            },
+            'redirect_url': redirect_url
+        }
+        return jsonify(response_data), 200
+    else: 
+        return jsonify({'message': 'Invalid username or password'}), 401
+    
+
+@app.route('/register', methods=['POST', 'GET'])
+def register():
+    data = request.get_json()
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+    confirm_password = data.get('confirm_password')
+    user_role = data.get('user_role')
+
+    if not username or not email or not password or not confirm_password or not user_role:
+        return jsonify({'message': 'All fields are required'}), 400
+    
+    existing_user = User.query.filter_by(email=email).first()
+    if existing_user:
+        return jsonify({'message': 'User already exists!'}), 409
+    
+    new_user = User(username=username, email=email, password=password, confirm_password=confirm_password, user_role=user_role)
+    new_user.set_password(password)
+    db.session.add(new_user)
+    db.session.commit()
+
+    access_token = create_access_token(identity=new_user.user_id)
+    
+    redirect_url = 'login'  # Default redirect URL
+
+    response_data = {
+        "token": access_token,
+        'user': {
+            'id': new_user.user_id,
+            'username': new_user.username,
+            'email': new_user.email,
+            'user_role': new_user.user_role
+        },
+        'redirect_url':redirect_url
+    }
+
+    return jsonify(response_data), 201
+
 
 @app.route('/user', methods=['GET'])
 def get_all_users():

@@ -1,3 +1,4 @@
+
 from flask import Flask, jsonify,request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -10,7 +11,7 @@ from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, J
 from main2 import main2
 from mpesa import mpesa
 from Stripe import stripe
-
+from werkzeug.wrappers import Response 
 
 
 
@@ -23,7 +24,7 @@ from Reviews import reviews
 
 
 
-app = Flask(__name__)
+app = Flask(__name__) 
 app.register_blueprint(restaurants)
 app.register_blueprint(user)
 app.register_blueprint(owners)

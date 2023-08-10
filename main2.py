@@ -5,7 +5,7 @@ import jwt
 from functools import wraps
 import uuid
 from flask_sqlalchemy import SQLAlchemy
-from model import db,User
+# from model import db,User
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from werkzeug.security import generate_password_hash, check_password_hash

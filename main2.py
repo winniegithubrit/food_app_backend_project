@@ -1,15 +1,15 @@
 #app.py
-from flask import Flask, request, jsonify, make_response,redirect, url_for
+from flask import Flask, request, jsonify, make_response,redirect, url_for,Blueprint
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity,JWTManager,jwt_required
 # import jwt
 from functools import wraps
 import uuid
 from flask_sqlalchemy import SQLAlchemy
-from model import db,User
+# from model import db,User
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import jwt,ma
+# from app import jwt,ma
 
 
 # app = Flask(__name__)
@@ -23,7 +23,7 @@ from app import jwt,ma
 # jwt=JWTManager(app)
 
 # migrate = Migrate(app, db)
-# ma = Marshmallow(app)
+ma = Marshmallow(app)
 
 class UserSchema(ma.Schema):
     class Meta:

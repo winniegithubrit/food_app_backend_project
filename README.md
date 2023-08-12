@@ -35,4 +35,4 @@ Admin and superadmin accounts can access administrative functions.
 
 # the frontend github link for the MunchHub Project
 
-https://github.com/lewis-otwori/MunchHubEats.git
+https://github.com/winniegithubrit/MunchHubEats.git
